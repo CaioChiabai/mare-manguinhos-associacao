@@ -9,6 +9,10 @@ export async function rotasDashboard(app: FastifyInstance) {
   app.get("/", async () => {
     await mensalidadesServico.sincronizarAtrasos();
 
+    const agora = new Date();
+    const inicioMesAtual = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    const inicioProximoMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 1);
+
     const [
       totalAssociados,
       associadosAtivos,
@@ -20,6 +24,10 @@ export async function rotasDashboard(app: FastifyInstance) {
       reunioesAgendadas,
       permissoesAtivas,
       mensalidadesPendentes,
+      mensalidadesAtrasadas,
+      valorEmAberto,
+      valorAtrasado,
+      valorRecebidoMesAtual,
       atividadeRecente,
     ] = await Promise.all([
       prisma.associado.count(),
@@ -32,6 +40,25 @@ export async function rotasDashboard(app: FastifyInstance) {
       prisma.reuniao.count({ where: { status: "agendada" } }),
       prisma.permissao.count({ where: { ativa: true } }),
       prisma.mensalidade.count({ where: { status: { in: ["pendente", "atrasado"] } } }),
+      prisma.mensalidade.count({ where: { status: "atrasado" } }),
+      prisma.mensalidade.aggregate({
+        where: { status: { in: ["pendente", "atrasado"] } },
+        _sum: { valor: true },
+      }),
+      prisma.mensalidade.aggregate({
+        where: { status: "atrasado" },
+        _sum: { valor: true },
+      }),
+      prisma.mensalidade.aggregate({
+        where: {
+          status: "pago",
+          dataPagamento: {
+            gte: inicioMesAtual,
+            lt: inicioProximoMes,
+          },
+        },
+        _sum: { valor: true },
+      }),
       prisma.logAuditoria.findMany({
         take: 8,
         orderBy: { criadoEm: "desc" },
@@ -53,6 +80,13 @@ export async function rotasDashboard(app: FastifyInstance) {
         reunioesAgendadas,
         permissoesAtivas,
         mensalidadesPendentes,
+      },
+      resumoFinanceiro: {
+        valorEmAberto: valorEmAberto._sum.valor ?? 0,
+        valorAtrasado: valorAtrasado._sum.valor ?? 0,
+        valorRecebidoMesAtual: valorRecebidoMesAtual._sum.valor ?? 0,
+        mensalidadesPendentes: mensalidadesPendentes - mensalidadesAtrasadas,
+        mensalidadesAtrasadas,
       },
       atividadeRecente,
     };
