@@ -19,5 +19,5 @@ Os guias principais ficam nestes arquivos:
 O frontend está em [frontend](frontend) e a API está em [backend](backend).
 
 
-Fullstack: https://associacao-mare-manguinhos.onrender.com
-Backendhttps://mare-manguinhos-associacao.onrender.com
+-Fullstack: https://associacao-mare-manguinhos.onrender.com
+-Backendhttps://mare-manguinhos-associacao.onrender.com
