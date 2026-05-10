@@ -5,7 +5,7 @@ async function iniciar() {
   const app = await construirAplicacao();
   
   // O Render define a porta automaticamente na variável process.env.PORT
-  const porta = process.env.PORT || ambiente.PORTA || 3000;
+  const porta = Number(process.env.PORT) || ambiente.PORTA;
   
   // No deploy, o host PRECISA ser '0.0.0.0'
   const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : ambiente.HOST;
