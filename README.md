@@ -1,19 +1,63 @@
-# Sistema de Associação de Pescadores
+# 🌊 Sistema de Associação de Pescadores (Maré Manguinhos)
 
-Projeto completo para demonstração de um painel administrativo da associação, com:
+Este projeto é uma solução fullstack completa desenvolvida para a gestão administrativa de uma associação de pescadores. O painel oferece controle total sobre associados, finanças, vendas e auditoria.
 
-- frontend em React + Vite
-- backend em Node.js + TypeScript + Fastify
-- banco local SQLite com Prisma
-- autenticação JWT
-- módulos de associados, lojas, permissões, reuniões, mensalidades, dashboard e auditoria
-- módulos operacionais de produtos, vendas e transportes
-- endpoints públicos mínimos para integrações externas
+## 🔗 Links de Acesso
+*   **Aplicação (Fullstack):** [associacao-mare-manguinhos.onrender.com](https://associacao-mare-manguinhos.onrender.com)
+*   **API (Backend):** [mare-manguinhos-associacao.onrender.com](https://mare-manguinhos-associacao.onrender.com)
 
-Os guias principais ficam nestes arquivos:
+---
 
-- [COMO_USAR.md](COMO_USAR.md)
-- [ARQUITETURA.md](ARQUITETURA.md)
-- [API.md](API.md)
+## 🛠️ Tecnologias Utilizadas
 
-O frontend está em [frontend](frontend) e a API está em [backend](backend).
+### **Frontend**
+*   **React + Vite:** Interface moderna, rápida e responsiva.
+*   **TypeScript:** Garantia de tipagem e maior segurança no desenvolvimento.
+
+### **Backend**
+*   **Node.js + Fastify:** Framework de alto desempenho e baixa sobrecarga.
+*   **Prisma ORM:** Gerenciamento de banco de dados com produtividade.
+*   **SQLite:** Banco de dados local para facilidade de deploy e testes.
+*   **JWT (JSON Web Token):** Autenticação segura de usuários.
+
+---
+
+## 🚀 Funcionalidades Principais
+
+### **Gestão Administrativa**
+*   **Associados:** Cadastro e controle completo de membros.
+*   **Permissões:** Controle de acesso baseado em cargos (RBAC).
+*   **Mensalidades:** Gestão financeira de contribuições.
+*   **Reuniões:** Agendamento e histórico de assembleias.
+*   **Auditoria:** Log de ações para transparência administrativa.
+*   **Dashboard:** Visão analítica dos dados da associação.
+
+### **Operacional & Comercial**
+*   **Lojas & Produtos:** Gestão de inventário e pontos de venda.
+*   **Vendas:** Fluxo completo de comercialização.
+*   **Transportes:** Monitoramento logístico.
+*   **Integração:** Endpoints públicos mínimos para sistemas externos.
+
+---
+
+## 📂 Estrutura do Projeto
+
+O repositório está dividido em duas frentes principais:
+
+*   📂 [`/frontend`](frontend): Código fonte da interface do usuário.
+*   📂 [`/backend`](backend): Estrutura da API, modelos do banco e regras de negócio.
+
+### Documentação Auxiliar
+Para detalhes técnicos específicos, consulte:
+1.  📖 [**COMO_USAR.md**](COMO_USAR.md) - Instruções de instalação e execução.
+2.  🏗️ [**ARQUITETURA.md**](ARQUITETURA.md) - Detalhes sobre o design do sistema.
+3.  🔌 [**API.md**](API.md) - Documentação dos endpoints e integrações.
+
+---
+
+## 📝 Notas de Instalação Rápida
+
+1.  Clone o repositório.
+2.  Instale as dependências em ambas as pastas (`npm install`).
+3.  Rode as migrações do Prisma no backend (`npx prisma migrate dev`).
+4.  Inicie os serviços com `npm run dev`.

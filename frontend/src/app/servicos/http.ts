@@ -20,7 +20,11 @@ interface OpcoesRequisicao {
 }
 
 export async function requisitar<T>(rota: string, opcoes: OpcoesRequisicao = {}) {
-  const resposta = await fetch(`${URL_BASE}${rota}`, {
+  // Ajuste aqui: Remove a barra no final da URL base (se houver) e a barra no início da rota (se houver), 
+  // garantindo que haja exatamente uma barra separando as duas.
+  const urlFinal = `${URL_BASE.replace(/\/$/, "")}/${rota.replace(/^\//, "")}`;
+
+  const resposta = await fetch(urlFinal, {
     method: opcoes.metodo ?? "GET",
     headers: {
       "Content-Type": "application/json",
