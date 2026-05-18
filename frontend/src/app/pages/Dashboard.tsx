@@ -7,7 +7,7 @@ import { Button } from "../components/ui/button";
 import { useAutenticacao } from "../hooks/useAutenticacao";
 import { servicoDashboard } from "../servicos/dashboard";
 import type { DashboardResumo } from "../tipos/api";
-import { formatarDataHora } from "../utils/formatacao";
+import { formatarDataHora, formatarMoeda } from "../utils/formatacao";
 
 export function Dashboard() {
   const { token } = useAutenticacao();
@@ -32,6 +32,7 @@ export function Dashboard() {
   }, [token]);
 
   const indicadores = dados?.indicadores;
+  const resumoFinanceiro = dados?.resumoFinanceiro;
 
   const stats = indicadores
     ? [
@@ -119,6 +120,44 @@ export function Dashboard() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-2">
+            <Card className="border-slate-200/80 bg-white/90 shadow-sm xl:col-span-2">
+              <CardHeader>
+                <CardTitle>Resumo financeiro</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm text-slate-500">Valor em aberto</p>
+                    <p className="mt-2 text-2xl text-slate-900">
+                      {formatarMoeda(resumoFinanceiro?.valorEmAberto)}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {resumoFinanceiro?.mensalidadesPendentes ?? 0} pendentes e{" "}
+                      {resumoFinanceiro?.mensalidadesAtrasadas ?? 0} atrasadas
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-red-100 bg-red-50 p-4">
+                    <p className="text-sm text-red-700">Valor atrasado</p>
+                    <p className="mt-2 text-2xl text-red-900">
+                      {formatarMoeda(resumoFinanceiro?.valorAtrasado)}
+                    </p>
+                    <p className="mt-1 text-sm text-red-700">
+                      Mensalidades vencidas sem pagamento
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-green-100 bg-green-50 p-4">
+                    <p className="text-sm text-green-700">Recebido no mês</p>
+                    <p className="mt-2 text-2xl text-green-900">
+                      {formatarMoeda(resumoFinanceiro?.valorRecebidoMesAtual)}
+                    </p>
+                    <p className="mt-1 text-sm text-green-700">
+                      Pagamentos registrados no mês atual
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="border-slate-200/80 bg-white/90 shadow-sm">
               <CardHeader>
                 <CardTitle>Atividade recente</CardTitle>

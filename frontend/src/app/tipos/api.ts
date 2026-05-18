@@ -126,5 +126,12 @@ export interface DashboardResumo {
     permissoesAtivas: number;
     mensalidadesPendentes: number;
   };
+  resumoFinanceiro: {
+    valorEmAberto: number;
+    valorAtrasado: number;
+    valorRecebidoMesAtual: number;
+    mensalidadesPendentes: number;
+    mensalidadesAtrasadas: number;
+  };
   atividadeRecente: LogAuditoria[];
 }

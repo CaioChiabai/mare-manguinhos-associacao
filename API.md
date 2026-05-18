@@ -81,6 +81,20 @@ Todos abaixo exigem JWT.
 - `GET /api/dashboard`
 - `GET /api/auditoria`
 
+O endpoint `GET /api/dashboard` retorna também um resumo financeiro calculado a partir das mensalidades:
+
+```json
+{
+  "resumoFinanceiro": {
+    "valorEmAberto": 1500,
+    "valorAtrasado": 500,
+    "valorRecebidoMesAtual": 1000,
+    "mensalidadesPendentes": 20,
+    "mensalidadesAtrasadas": 10
+  }
+}
+```
+
 ## Endpoints públicos
 
 Esses endpoints foram preparados para integração externa:
