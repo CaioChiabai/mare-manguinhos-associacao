@@ -1,0 +1,13 @@
+site_name: Maré de Manguinhos - Documentação
+site_description: Documentação do Sistema da Associação Maré de Manguinhos
+theme:
+  name: material
+  features:
+    - navigation.indexes
+
+nav:
+  - Início: index.md
+  - Constituições & Boas Práticas: CONSTITUTIONS.md
+  - Arquitetura: ARQUITETURA.md
+  - Documentação da API: API.md
+  - Planejamento: Planejamento_Sistema_Associacao.md
