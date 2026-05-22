@@ -111,6 +111,7 @@ CREATE TABLE IF NOT EXISTS "logs_auditoria" (
 CREATE UNIQUE INDEX IF NOT EXISTS "usuarios_email_key" ON "usuarios"("email");
 CREATE UNIQUE INDEX IF NOT EXISTS "associados_cpf_key" ON "associados"("cpf");
 CREATE UNIQUE INDEX IF NOT EXISTS "associados_email_key" ON "associados"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "associados_telefone_key" ON "associados"("telefone");
 CREATE UNIQUE INDEX IF NOT EXISTS "associados_numeroCarteira_key" ON "associados"("numeroCarteira");
 CREATE UNIQUE INDEX IF NOT EXISTS "presencas_reuniao_reuniaoId_associadoId_key" ON "presencas_reuniao"("reuniaoId", "associadoId");
 CREATE UNIQUE INDEX IF NOT EXISTS "mensalidades_associadoId_competencia_key" ON "mensalidades"("associadoId", "competencia");

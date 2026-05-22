@@ -34,7 +34,7 @@ model Associado {
   nome            String
   cpf             String           @unique
   email           String           @unique
-  telefone        String
+  telefone        String           @unique
   embarcacao      String?
   numeroCarteira  String           @unique
   status          String           @default("ativo")
