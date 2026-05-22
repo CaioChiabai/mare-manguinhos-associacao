@@ -102,15 +102,18 @@ Esses endpoints foram preparados para integração externa:
 - `GET /api/publico/associados/ativos`
 - `GET /api/publico/lojas/aprovadas`
 - `GET /api/publico/pescador/:id/ativo`
-- `GET /api/publico/loja/:id/ativa`
 - `GET /api/publico/pescador/:id/pode-vender`
 - `GET /api/publico/pescador/:id/status`
+- `GET /api/publico/pescador/telefone/:telefone/ativo`
+- `GET /api/publico/pescador/telefone/:telefone/pode-vender`
+- `GET /api/publico/loja/:id/ativa`
 
 Retorno esperado:
 
 - os endpoints `.../ativo` e `.../ativa` retornam apenas `true` ou `false`
 - os endpoints de listas públicas retornam somente dados operacionais mínimos, sem CPF, e-mail, telefone ou outros dados sensíveis
 - o endpoint `.../status` devolve apenas `id`, `nome` e `status`
+- as variantes `/pescador/telefone/:telefone/...` aceitam o telefone em qualquer formato (com ou sem máscara) — o servidor remove caracteres não numéricos antes da busca. O telefone é único por associado.
 
 ## Regras principais
 

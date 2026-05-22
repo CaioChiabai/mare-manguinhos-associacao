@@ -200,9 +200,11 @@ Painel Admin (Web)
 | `GET` | `/api/publico/associados/ativos` | Retorna associados ativos com dados operacionais mínimos |
 | `GET` | `/api/publico/lojas/aprovadas` | Retorna lojas aprovadas com dados operacionais mínimos |
 | `GET` | `/api/publico/pescador/{id}/ativo` | Retorna `true` quando o pescador está ativo, `false` caso contrário |
-| `GET` | `/api/publico/loja/{id}/ativa` | Retorna `true` quando a loja está ativa, `false` caso contrário |
 | `GET` | `/api/publico/pescador/{id}/pode-vender` | Verifica se o pescador está habilitado para venda |
 | `GET` | `/api/publico/pescador/{id}/status` | Retorna o status atual do pescador |
+| `GET` | `/api/publico/pescador/telefone/{telefone}/ativo` | Variante por telefone, consumida pelo chatbot. O servidor normaliza o telefone (remove tudo que não for dígito) antes da busca |
+| `GET` | `/api/publico/pescador/telefone/{telefone}/pode-vender` | Variante por telefone para o chatbot, com a mesma normalização |
+| `GET` | `/api/publico/loja/{id}/ativa` | Retorna `true` quando a loja está ativa, `false` caso contrário |
 
 **Critérios de Aceite:**
 - [ ] Todos os endpoints documentados e funcionais
@@ -268,7 +270,7 @@ Painel Admin (Web)
 | `id` | UUID / INT | Identificador único |
 | `user_id` | FK → users | Referência ao usuário |
 | `cpf` | VARCHAR | CPF do pescador (único) |
-| `telefone` | VARCHAR | Telefone de contato |
+| `telefone` | VARCHAR | Telefone de contato (único; armazenado apenas com dígitos — a normalização é feita na escrita) |
 | `status` | ENUM | Status atual (`ativo`, `inadimplente`, `suspenso`, `bloqueado`) |
 | `data_entrada` | DATE | Data de associação |
 
