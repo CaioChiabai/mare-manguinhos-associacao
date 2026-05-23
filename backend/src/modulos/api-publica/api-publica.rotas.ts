@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../../infraestrutura/prisma/cliente.js";
 import { ErroNaoEncontrado } from "../../compartilhado/erros.js";
+import { normalizarTelefone } from "../../compartilhado/telefone.js";
 import { mensalidadesServico } from "../mensalidades/mensalidades.servico.js";
 
 export async function rotasApiPublica(app: FastifyInstance) {
@@ -35,15 +36,34 @@ export async function rotasApiPublica(app: FastifyInstance) {
     return { itens: lojas };
   });
 
+  async function podeVender(associadoId: string) {
+    const lojasAprovadas = await prisma.loja.count({
+      where: { associadoId, status: "aprovada" },
+    });
+    return lojasAprovadas;
+  }
+
   app.get<{ Params: { id: string } }>("/pescador/:id/pode-vender", async (requisicao) => {
     await mensalidadesServico.sincronizarAtrasos();
     const associado = await prisma.associado.findUnique({ where: { id: requisicao.params.id } });
     if (!associado) throw new ErroNaoEncontrado("Associado");
 
-    const lojasAprovadas = await prisma.loja.count({
-      where: { associadoId: associado.id, status: "aprovada" },
-    });
+    const lojasAprovadas = await podeVender(associado.id);
+    return {
+      associadoId: associado.id,
+      podeVender: associado.status === "ativo" && lojasAprovadas > 0,
+      status: associado.status,
+      lojasAprovadas,
+    };
+  });
 
+  app.get<{ Params: { telefone: string } }>("/pescador/telefone/:telefone/pode-vender", async (requisicao) => {
+    await mensalidadesServico.sincronizarAtrasos();
+    const telefone = normalizarTelefone(requisicao.params.telefone);
+    const associado = await prisma.associado.findUnique({ where: { telefone } });
+    if (!associado) throw new ErroNaoEncontrado("Associado");
+
+    const lojasAprovadas = await podeVender(associado.id);
     return {
       associadoId: associado.id,
       podeVender: associado.status === "ativo" && lojasAprovadas > 0,
@@ -66,6 +86,17 @@ export async function rotasApiPublica(app: FastifyInstance) {
     await mensalidadesServico.sincronizarAtrasos();
     const associado = await prisma.associado.findUnique({
       where: { id: requisicao.params.id },
+      select: { status: true },
+    });
+    if (!associado) throw new ErroNaoEncontrado("Associado");
+    return associado.status === "ativo";
+  });
+
+  app.get<{ Params: { telefone: string } }>("/pescador/telefone/:telefone/ativo", async (requisicao) => {
+    await mensalidadesServico.sincronizarAtrasos();
+    const telefone = normalizarTelefone(requisicao.params.telefone);
+    const associado = await prisma.associado.findUnique({
+      where: { telefone },
       select: { status: true },
     });
     if (!associado) throw new ErroNaoEncontrado("Associado");

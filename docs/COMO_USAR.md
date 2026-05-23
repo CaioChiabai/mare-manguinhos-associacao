@@ -73,10 +73,13 @@ Para sistemas como vendas, chatbot ou rotas, a integração pública deve prefer
 - `GET /api/publico/associados/ativos`
 - `GET /api/publico/lojas/aprovadas`
 - `GET /api/publico/pescador/:id/ativo`
-- `GET /api/publico/loja/:id/ativa`
+- `GET /api/publico/pescador/:id/pode-vender`
 - `GET /api/publico/pescador/:id/status`
+- `GET /api/publico/pescador/telefone/:telefone/ativo` (consumido pelo chatbot)
+- `GET /api/publico/pescador/telefone/:telefone/pode-vender` (consumido pelo chatbot)
+- `GET /api/publico/loja/:id/ativa`
 
-Esses retornos foram mantidos enxutos para não expor CPF, e-mail, telefone ou outros dados sensíveis.
+Esses retornos foram mantidos enxutos para não expor CPF, e-mail, telefone ou outros dados sensíveis. As variantes por telefone aceitam o número em qualquer formato — o servidor normaliza removendo espaços e caracteres especiais antes da busca.
 
 ## 6. Dados importantes para demo
 

@@ -6,6 +6,7 @@ import {
   ErroNaoEncontrado,
 } from "../../compartilhado/erros.js";
 import { registrarAuditoria } from "../../compartilhado/auditoria.js";
+import { normalizarTelefone } from "../../compartilhado/telefone.js";
 import type {
   EntradaAlterarStatus,
   EntradaAtualizarAssociado,
@@ -72,12 +73,18 @@ export const associadosServico = {
     const emailExistente = await prisma.associado.findUnique({ where: { email: dados.email } });
     if (emailExistente) throw new ErroConflito("E-mail já cadastrado");
 
+    const telefone = normalizarTelefone(dados.telefone);
+    const telefoneExistente = await prisma.associado.findUnique({ where: { telefone } });
+    if (telefoneExistente) throw new ErroConflito("Telefone já cadastrado");
+
     const carteiraExistente = await prisma.associado.findUnique({
       where: { numeroCarteira: dados.numeroCarteira },
     });
     if (carteiraExistente) throw new ErroConflito("Número de carteira já cadastrado");
 
-    const associado = await prisma.associado.create({ data: dados });
+    const associado = await prisma.associado.create({
+      data: { ...dados, telefone },
+    });
 
     await registrarAuditoria({
       usuarioId,
@@ -94,7 +101,19 @@ export const associadosServico = {
     const existente = await prisma.associado.findUnique({ where: { id } });
     if (!existente) throw new ErroNaoEncontrado("Associado");
 
-    const associado = await prisma.associado.update({ where: { id }, data: dados });
+    let telefone: string | undefined;
+    if (dados.telefone) {
+      telefone = normalizarTelefone(dados.telefone);
+      if (telefone !== existente.telefone) {
+        const telefoneExistente = await prisma.associado.findUnique({ where: { telefone } });
+        if (telefoneExistente) throw new ErroConflito("Telefone já cadastrado");
+      }
+    }
+
+    const associado = await prisma.associado.update({
+      where: { id },
+      data: { ...dados, ...(telefone && { telefone }) },
+    });
 
     await registrarAuditoria({
       usuarioId,
