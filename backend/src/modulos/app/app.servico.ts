@@ -348,6 +348,9 @@ export const appServico = {
                 especie: true,
                 nome: true,
                 foto: true,
+                pesoDisponivel: true,
+                cortesDisponiveis: true,
+                badges: true,
                 categoria: true,
                 loja: {
                   select: {
@@ -367,9 +370,9 @@ export const appServico = {
         especie: item.produto.especie || item.produto.nome,
         foto: item.produto.foto || "",
         precoPorKg: item.precoPorKg,
-        pesoDisponivel: 0,
-        cortesDisponiveis: [],
-        badges: [],
+        pesoDisponivel: item.produto.pesoDisponivel ?? 0,
+        cortesDisponiveis: parseJsonArray(item.produto.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+        badges: parseJsonArray(item.produto.badges),
         categoria: (item.produto.categoria || "peixe") as "peixe" | "crustaceo",
         pescador: {
           id: item.produto.loja.associado.id,
@@ -404,6 +407,7 @@ export const appServico = {
       valorTotal: pedido.valorTotal,
       formaPagamento: pedido.formaPagamento,
       criadoEm: pedido.criadoEm.toISOString(),
+      atualizadoEm: pedido.atualizadoEm.toISOString(),
     };
   },
 
@@ -421,6 +425,9 @@ export const appServico = {
                 foto: true,
                 precoPorKg: true,
                 preco: true,
+                pesoDisponivel: true,
+                cortesDisponiveis: true,
+                badges: true,
                 categoria: true,
                 loja: {
                   select: {
@@ -444,9 +451,9 @@ export const appServico = {
           especie: item.produto.especie || item.produto.nome,
           foto: item.produto.foto || "",
           precoPorKg: item.precoPorKg,
-          pesoDisponivel: 0,
-          cortesDisponiveis: [],
-          badges: [],
+          pesoDisponivel: item.produto.pesoDisponivel ?? 0,
+          cortesDisponiveis: parseJsonArray(item.produto.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+          badges: parseJsonArray(item.produto.badges),
           categoria: (item.produto.categoria || "peixe") as "peixe" | "crustaceo",
           pescador: {
             id: item.produto.loja.associado.id,
@@ -465,6 +472,7 @@ export const appServico = {
       valorTotal: pedido.valorTotal,
       formaPagamento: pedido.formaPagamento,
       criadoEm: pedido.criadoEm.toISOString(),
+      atualizadoEm: pedido.atualizadoEm.toISOString(),
     };
   },
 
@@ -479,12 +487,15 @@ export const appServico = {
             include: {
               produto: {
                 select: {
-                  id: true,
-                  especie: true,
-                  nome: true,
-                  foto: true,
-                  categoria: true,
-                  loja: {
+                    id: true,
+                    especie: true,
+                    nome: true,
+                    foto: true,
+                    pesoDisponivel: true,
+                    cortesDisponiveis: true,
+                    badges: true,
+                    categoria: true,
+                    loja: {
                     select: {
                       associado: { select: { id: true, nome: true, foto: true, telefone: true } },
                     },
@@ -510,9 +521,9 @@ export const appServico = {
             especie: item.produto.especie || item.produto.nome,
             foto: item.produto.foto || "",
             precoPorKg: item.precoPorKg,
-            pesoDisponivel: 0,
-            cortesDisponiveis: [],
-            badges: [],
+            pesoDisponivel: item.produto.pesoDisponivel ?? 0,
+            cortesDisponiveis: parseJsonArray(item.produto.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+            badges: parseJsonArray(item.produto.badges),
             categoria: (item.produto.categoria || "peixe") as "peixe" | "crustaceo",
             pescador: {
               id: item.produto.loja.associado.id,
@@ -530,8 +541,9 @@ export const appServico = {
         frete: pedido.frete,
         valorTotal: pedido.valorTotal,
         formaPagamento: pedido.formaPagamento,
-        criadoEm: pedido.criadoEm.toISOString(),
-      })),
+          criadoEm: pedido.criadoEm.toISOString(),
+          atualizadoEm: pedido.atualizadoEm.toISOString(),
+        })),
       totalPaginas: Math.ceil(total / limite),
       paginaAtual: pagina,
     };
