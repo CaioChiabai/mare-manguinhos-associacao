@@ -46,6 +46,7 @@ export function Mensalidades() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<"todos" | StatusMensalidade>("todos");
   const [carregando, setCarregando] = useState(true);
+  const [registrandoPagamento, setRegistrandoPagamento] = useState<string | null>(null);
   const [modalAberta, setModalAberta] = useState(false);
   const [formulario, setFormulario] = useState({
     associadoId: "",
@@ -59,8 +60,11 @@ export function Mensalidades() {
     setCarregando(true);
     try {
       const [respostaMensalidades, respostaAssociados] = await Promise.all([
-        servicoMensalidades.listar(token),
-        servicoAssociados.listar(token),
+        servicoMensalidades.listar(token, {
+          status: filtroStatus === "todos" ? undefined : filtroStatus,
+          porPagina: 200,
+        }),
+        servicoAssociados.listar(token, { porPagina: 1000 }),
       ]);
       setMensalidades(respostaMensalidades.itens);
       setAssociados(respostaAssociados.itens);
@@ -72,16 +76,17 @@ export function Mensalidades() {
   }
 
   useEffect(() => {
-    void carregarDados();
-  }, [token]);
+    const timer = setTimeout(() => void carregarDados(), 250);
+    return () => clearTimeout(timer);
+  }, [token, filtroStatus]);
 
-  const mensalidadesFiltradas = mensalidades.filter((mensalidade) => {
-    const matchBusca =
-      mensalidade.associado?.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      mensalidade.competencia.includes(busca);
-    const matchStatus = filtroStatus === "todos" || mensalidade.status === filtroStatus;
-    return Boolean(matchBusca) && matchStatus;
-  });
+  const mensalidadesFiltradas = busca.trim()
+    ? mensalidades.filter(
+        (mensalidade) =>
+          mensalidade.associado?.nome.toLowerCase().includes(busca.toLowerCase()) ||
+          mensalidade.competencia.includes(busca),
+      )
+    : mensalidades;
 
   async function handleCriar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,13 +109,16 @@ export function Mensalidades() {
   }
 
   async function handleRegistrarPagamento(id: string) {
-    if (!token) return;
+    if (!token || registrandoPagamento) return;
+    setRegistrandoPagamento(id);
     try {
       await servicoMensalidades.registrarPagamento(token, id);
       toast.success("Pagamento registrado");
       await carregarDados();
     } catch (erro) {
       toast.error(erro instanceof Error ? erro.message : "Erro ao registrar pagamento");
+    } finally {
+      setRegistrandoPagamento(null);
     }
   }
 
@@ -255,9 +263,10 @@ export function Mensalidades() {
                         <Button
                           size="sm"
                           variant="outline"
+                          disabled={registrandoPagamento === mensalidade.id}
                           onClick={() => void handleRegistrarPagamento(mensalidade.id)}
                         >
-                          Registrar pagamento
+                          {registrandoPagamento === mensalidade.id ? "Registrando..." : "Registrar pagamento"}
                         </Button>
                       ) : (
                         <span className="text-sm text-slate-500">
