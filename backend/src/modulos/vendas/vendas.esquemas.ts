@@ -4,7 +4,7 @@ export const statusVenda = z.enum(["pendente", "concluida", "cancelada"]);
 
 export const esquemaItemVenda = z.object({
   produtoId: z.string().uuid(),
-  quantidade: z.coerce.number().int().min(1),
+  pesoKg: z.coerce.number().positive(),
 });
 
 export const esquemaCriarVenda = z.object({

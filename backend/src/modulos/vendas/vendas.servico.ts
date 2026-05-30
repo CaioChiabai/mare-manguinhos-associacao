@@ -13,7 +13,7 @@ import type {
 
 async function ajustarEstoqueItens(
   tx: Prisma.TransactionClient,
-  itens: Array<{ produtoId: string; quantidade: number }>,
+  itens: Array<{ produtoId: string; pesoKg: number }>,
   direcao: "decrementar" | "incrementar"
 ) {
   for (const item of itens) {
@@ -22,20 +22,20 @@ async function ajustarEstoqueItens(
         where: {
           id: item.produtoId,
           ativo: true,
-          estoque: { gte: item.quantidade },
+          pesoDisponivel: { gte: item.pesoKg },
         },
-        data: { estoque: { decrement: item.quantidade } },
+        data: { pesoDisponivel: { decrement: item.pesoKg } },
       });
 
       if (resultado.count !== 1) {
-        throw new ErroConflito("Estoque insuficiente ou produto inativo");
+        throw new ErroConflito("Peso disponível insuficiente ou produto inativo");
       }
       continue;
     }
 
     await tx.produto.update({
       where: { id: item.produtoId },
-      data: { estoque: { increment: item.quantidade } },
+      data: { pesoDisponivel: { increment: item.pesoKg } },
     });
   }
 }
@@ -59,7 +59,7 @@ export const vendasServico = {
         include: {
           loja: { select: { id: true, nomeLoja: true } },
           associado: { select: { id: true, nome: true } },
-          itens: { include: { produto: { select: { id: true, nome: true } } } },
+          itens: { include: { produto: { select: { id: true, especie: true } } } },
           transporte: true,
         },
         skip: (filtros.pagina - 1) * filtros.porPagina,
@@ -127,17 +127,17 @@ export const vendasServico = {
     const itensComPreco = dados.itens.map((item) => {
       const produto = produtos.find((p) => p.id === item.produtoId)!;
       if (!produto.ativo) {
-        throw new ErroAplicacao(`Produto inativo: ${produto.nome}`);
+        throw new ErroAplicacao(`Produto inativo: ${produto.especie}`);
       }
-      if (produto.estoque < item.quantidade) {
-        throw new ErroConflito(`Estoque insuficiente para ${produto.nome}`);
+      if (produto.pesoDisponivel < item.pesoKg) {
+        throw new ErroConflito(`Peso disponível insuficiente para ${produto.especie}`);
       }
-      const subtotal = produto.preco * item.quantidade;
+      const subtotal = produto.precoPorKg * item.pesoKg;
       total += subtotal;
       return {
         produtoId: produto.id,
-        quantidade: item.quantidade,
-        precoUnitario: produto.preco,
+        pesoKg: item.pesoKg,
+        precoUnitario: produto.precoPorKg,
         subtotal,
       };
     });
@@ -158,7 +158,7 @@ export const vendasServico = {
       if (dados.status === "concluida") {
         await ajustarEstoqueItens(
           tx,
-          itensComPreco.map((item) => ({ produtoId: item.produtoId, quantidade: item.quantidade })),
+          itensComPreco.map((item) => ({ produtoId: item.produtoId, pesoKg: item.pesoKg })),
           "decrementar"
         );
       }

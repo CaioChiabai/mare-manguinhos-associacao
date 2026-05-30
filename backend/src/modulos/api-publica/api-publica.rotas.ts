@@ -1,8 +1,16 @@
 import type { FastifyInstance } from "fastify";
+import { z } from "zod";
 import { prisma } from "../../infraestrutura/prisma/cliente.js";
-import { ErroNaoEncontrado } from "../../compartilhado/erros.js";
+import { ErroAplicacao, ErroNaoEncontrado } from "../../compartilhado/erros.js";
 import { normalizarTelefone } from "../../compartilhado/telefone.js";
+import { registrarAuditoria } from "../../compartilhado/auditoria.js";
 import { mensalidadesServico } from "../mensalidades/mensalidades.servico.js";
+
+const esquemaCadastrarProdutoChatbot = z.object({
+  especie: z.string().min(2).max(100),
+  precoPorKg: z.coerce.number().positive(),
+  pesoDisponivel: z.coerce.number().positive(),
+});
 
 export async function rotasApiPublica(app: FastifyInstance) {
   app.get("/associados/ativos", async () => {
@@ -112,4 +120,53 @@ export async function rotasApiPublica(app: FastifyInstance) {
     if (!loja) throw new ErroNaoEncontrado("Loja");
     return loja.status === "aprovada" && loja.associado.status === "ativo";
   });
+
+  app.post<{ Params: { telefone: string } }>(
+    "/pescador/telefone/:telefone/produto",
+    async (requisicao, resposta) => {
+      await mensalidadesServico.sincronizarAtrasos();
+
+      const dados = esquemaCadastrarProdutoChatbot.parse(requisicao.body);
+      const telefone = normalizarTelefone(requisicao.params.telefone);
+
+      const associado = await prisma.associado.findUnique({
+        where: { telefone },
+        select: { id: true, nome: true, status: true },
+      });
+      if (!associado) throw new ErroNaoEncontrado("Pescador");
+
+      const lojasAprovadas = await podeVender(associado.id);
+      if (associado.status !== "ativo" || lojasAprovadas === 0) {
+        throw new ErroAplicacao(
+          `Pescador não pode vender (status: ${associado.status}, lojas aprovadas: ${lojasAprovadas})`,
+          403,
+        );
+      }
+
+      const produto = await prisma.produto.create({
+        data: {
+          associadoId: associado.id,
+          especie: dados.especie,
+          precoPorKg: dados.precoPorKg,
+          pesoDisponivel: dados.pesoDisponivel,
+        },
+      });
+
+      await registrarAuditoria({
+        acao: "criar",
+        entidade: "produto",
+        entidadeId: produto.id,
+        detalhes: { canal: "chatbot_whatsapp", telefone, especie: produto.especie },
+      });
+
+      return resposta.status(201).send({
+        id: produto.id,
+        especie: produto.especie,
+        precoPorKg: produto.precoPorKg,
+        pesoDisponivel: produto.pesoDisponivel,
+        pescador: { id: associado.id, nome: associado.nome },
+        criadoEm: produto.criadoEm,
+      });
+    },
+  );
 }
