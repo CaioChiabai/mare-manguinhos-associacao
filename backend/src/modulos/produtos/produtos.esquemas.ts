@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const esquemaCriarProduto = z.object({
-  associadoId: z.string().uuid(),
+  lojaId: z.string().uuid(),
   especie: z.string().min(2).max(100),
   descricao: z.string().optional(),
   precoPorKg: z.coerce.number().positive(),
@@ -9,10 +9,11 @@ export const esquemaCriarProduto = z.object({
   ativo: z.coerce.boolean().default(true),
 });
 
-export const esquemaAtualizarProduto = esquemaCriarProduto.partial().omit({ associadoId: true });
+export const esquemaAtualizarProduto = esquemaCriarProduto.partial().omit({ lojaId: true });
 
 export const esquemaListarProdutos = z.object({
   busca: z.string().optional(),
+  lojaId: z.string().uuid().optional(),
   associadoId: z.string().uuid().optional(),
   ativo: z
     .preprocess((val: unknown) => {

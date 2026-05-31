@@ -48,7 +48,6 @@ model Associado {
   mensalidades    Mensalidade[]
   historicoStatus HistoricoStatusAssociado[]
   vendas          Venda[]
-  produtos        Produto[]
 
   @@map("associados")
 }
@@ -83,18 +82,19 @@ model Loja {
   atualizadoEm    DateTime   @updatedAt
 
   associado Associado @relation(fields: [associadoId], references: [id], onDelete: Cascade)
+  produtos  Produto[]
   vendas    Venda[]
 
   @@map("lojas")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PRODUTOS DO PESCADOR (cadastrados via painel admin ou chatbot WhatsApp)
+// PRODUTOS DAS LOJAS (cadastrados via painel admin ou chatbot WhatsApp)
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Produto {
   id             String   @id @default(uuid())
-  associadoId    String
+  lojaId         String
   especie        String
   descricao      String?
   precoPorKg     Float
@@ -103,7 +103,7 @@ model Produto {
   criadoEm       DateTime @default(now())
   atualizadoEm   DateTime @updatedAt
 
-  associado  Associado   @relation(fields: [associadoId], references: [id], onDelete: Cascade)
+  loja       Loja        @relation(fields: [lojaId], references: [id], onDelete: Cascade)
   itensVenda ItemVenda[]
 
   @@map("produtos")
