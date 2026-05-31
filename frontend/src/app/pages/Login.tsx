@@ -9,8 +9,8 @@ import { toast } from "sonner";
 
 export function Login() {
   const { autenticado, entrar } = useAutenticacao();
-  const [email, setEmail] = useState("admin@pescadores.local");
-  const [senha, setSenha] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [enviando, setEnviando] = useState(false);
 
   if (autenticado) {
@@ -48,23 +48,17 @@ export function Login() {
               Controle associados, comércio, permissões, reuniões e financeiro com visão operacional em tempo real.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Card className="border-cyan-100">
               <CardContent className="p-5">
-                <p className="text-sm text-slate-500">Login padrão</p>
-                <p className="mt-2 font-medium text-slate-900">admin@pescadores.local</p>
-              </CardContent>
-            </Card>
-            <Card className="border-cyan-100">
-              <CardContent className="p-5">
-                <p className="text-sm text-slate-500">Senha padrão</p>
-                <p className="mt-2 font-medium text-slate-900">admin123</p>
-              </CardContent>
-            </Card>
-            <Card className="border-cyan-100">
-              <CardContent className="p-5">
-                <p className="text-sm text-slate-500">API</p>
+                <p className="text-sm text-slate-500">Tecnologia</p>
                 <p className="mt-2 font-medium text-slate-900">Fastify + Prisma</p>
+              </CardContent>
+            </Card>
+            <Card className="border-cyan-100">
+              <CardContent className="p-5">
+                <p className="text-sm text-slate-500">Frontend</p>
+                <p className="mt-2 font-medium text-slate-900">React + Vite</p>
               </CardContent>
             </Card>
           </div>

@@ -39,10 +39,10 @@ export async function rotasDashboard(app: FastifyInstance) {
       prisma.loja.count({ where: { status: "pendente" } }),
       prisma.reuniao.count({ where: { status: "agendada" } }),
       prisma.permissao.count({ where: { ativa: true } }),
-      prisma.mensalidade.count({ where: { status: { in: ["pendente", "atrasado"] } } }),
+      prisma.mensalidade.count({ where: { status: "pendente" } }),
       prisma.mensalidade.count({ where: { status: "atrasado" } }),
       prisma.mensalidade.aggregate({
-        where: { status: { in: ["pendente", "atrasado"] } },
+        where: { status: { in: ["pendente", "atrasado"] }, dataPagamento: null },
         _sum: { valor: true },
       }),
       prisma.mensalidade.aggregate({
@@ -85,7 +85,7 @@ export async function rotasDashboard(app: FastifyInstance) {
         valorEmAberto: valorEmAberto._sum.valor ?? 0,
         valorAtrasado: valorAtrasado._sum.valor ?? 0,
         valorRecebidoMesAtual: valorRecebidoMesAtual._sum.valor ?? 0,
-        mensalidadesPendentes: mensalidadesPendentes - mensalidadesAtrasadas,
+        mensalidadesPendentes,
         mensalidadesAtrasadas,
       },
       atividadeRecente,

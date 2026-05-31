@@ -1,6 +1,6 @@
-import { Prisma } from "../../../src/generated/prisma/index.js";
+import { Prisma } from "../../generated/prisma/index.js";
 import { prisma } from "../../infraestrutura/prisma/cliente.js";
-import { ErroConflito, ErroNaoEncontrado } from "../../compartilhado/erros.js";
+import { ErroNaoEncontrado } from "../../compartilhado/erros.js";
 import { registrarAuditoria } from "../../compartilhado/auditoria.js";
 import type {
   EntradaAtualizarStatusTransporte,
@@ -69,26 +69,13 @@ export const transportesServico = {
     });
     if (!venda) throw new ErroNaoEncontrado("Venda");
 
-    let transporte;
-    try {
-      transporte = await prisma.transporte.create({
-        data: {
-          ...dados,
-          dataEnvio: dados.status === "em_transito" ? new Date() : null,
-          dataEntrega: dados.status === "entregue" ? new Date() : null,
-        },
-      });
-    } catch (err) {
-      if (err && typeof err === "object" && "code" in err) {
-        if ((err as { code: string }).code === "P2002") {
-          throw new ErroConflito("Esta venda já possui transporte");
-        }
-        if ((err as { code: string }).code === "P2003") {
-          throw new ErroNaoEncontrado("Venda");
-        }
-      }
-      throw err;
-    }
+    const transporte = await prisma.transporte.create({
+      data: {
+        ...dados,
+        dataEnvio: dados.status === "em_transito" ? new Date() : null,
+        dataEntrega: dados.status === "entregue" ? new Date() : null,
+      },
+    });
 
     await registrarAuditoria({
       usuarioId,
