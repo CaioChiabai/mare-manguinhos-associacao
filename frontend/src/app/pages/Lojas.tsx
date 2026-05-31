@@ -59,6 +59,7 @@ export function Lojas() {
   const [filtroStatus, setFiltroStatus] = useState<"todos" | StatusLoja>("todos");
   const [busca, setBusca] = useState("");
   const [carregando, setCarregando] = useState(true);
+  const [atualizandoStatus, setAtualizandoStatus] = useState<string | null>(null);
   const [modalAberta, setModalAberta] = useState(false);
   const [lojaSelecionada, setLojaSelecionada] = useState<Loja | null>(null);
   const [rejeitandoLoja, setRejeitandoLoja] = useState<Loja | null>(null);
@@ -79,7 +80,7 @@ export function Lojas() {
           busca: busca || undefined,
           status: filtroStatus === "todos" ? undefined : filtroStatus,
         }),
-        servicoAssociados.listar(token),
+        servicoAssociados.listar(token, { porPagina: 1000 }),
       ]);
       setLojas(respostaLojas.itens);
       setAssociados(respostaAssociados.itens);
@@ -121,13 +122,16 @@ export function Lojas() {
   }
 
   async function executarAtualizacaoStatus(loja: Loja, status: StatusLoja, motivo: string | undefined) {
-    if (!token) return;
+    if (!token || atualizandoStatus) return;
+    setAtualizandoStatus(loja.id);
     try {
       await servicoLojas.atualizarStatus(token, loja.id, status, motivo);
       toast.success(`Loja "${loja.nomeLoja}" atualizada`);
       await carregarDados();
     } catch (erro) {
       toast.error(erro instanceof Error ? erro.message : "Erro ao atualizar loja");
+    } finally {
+      setAtualizandoStatus(null);
     }
   }
 
@@ -258,11 +262,11 @@ export function Lojas() {
                       <div className="flex justify-end gap-2">
                         {loja.status === "pendente" && (
                           <>
-                            <Button size="sm" variant="outline" className="gap-2 text-green-700" onClick={() => iniciarAtualizacaoStatus(loja, "aprovada")}>
+                            <Button size="sm" variant="outline" className="gap-2 text-green-700" disabled={atualizandoStatus === loja.id} onClick={() => iniciarAtualizacaoStatus(loja, "aprovada")}>
                               <Check className="h-4 w-4" />
-                              Aprovar
+                              {atualizandoStatus === loja.id ? "..." : "Aprovar"}
                             </Button>
-                            <Button size="sm" variant="outline" className="gap-2 text-red-700" onClick={() => iniciarAtualizacaoStatus(loja, "rejeitada")}>
+                            <Button size="sm" variant="outline" className="gap-2 text-red-700" disabled={atualizandoStatus === loja.id} onClick={() => iniciarAtualizacaoStatus(loja, "rejeitada")}>
                               <X className="h-4 w-4" />
                               Rejeitar
                             </Button>

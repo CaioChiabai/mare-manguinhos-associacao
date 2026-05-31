@@ -15,7 +15,6 @@ const esquemaCadastrarProdutoChatbot = z.object({
 
 export async function rotasApiPublica(app: FastifyInstance) {
   app.get("/associados/ativos", async () => {
-    await mensalidadesServico.sincronizarAtrasos();
     const associados = await prisma.associado.findMany({
       where: { status: "ativo" },
       select: {
@@ -29,7 +28,6 @@ export async function rotasApiPublica(app: FastifyInstance) {
   });
 
   app.get("/lojas/aprovadas", async () => {
-    await mensalidadesServico.sincronizarAtrasos();
     const lojas = await prisma.loja.findMany({
       where: {
         status: "aprovada",
@@ -45,19 +43,17 @@ export async function rotasApiPublica(app: FastifyInstance) {
     return { itens: lojas };
   });
 
-  async function podeVender(associadoId: string) {
-    const lojasAprovadas = await prisma.loja.count({
+  async function contarLojasAprovadas(associadoId: string) {
+    return prisma.loja.count({
       where: { associadoId, status: "aprovada" },
     });
-    return lojasAprovadas;
   }
 
   app.get<{ Params: { id: string } }>("/pescador/:id/pode-vender", async (requisicao) => {
-    await mensalidadesServico.sincronizarAtrasos();
     const associado = await prisma.associado.findUnique({ where: { id: requisicao.params.id } });
     if (!associado) throw new ErroNaoEncontrado("Associado");
 
-    const lojasAprovadas = await podeVender(associado.id);
+    const lojasAprovadas = await contarLojasAprovadas(associado.id);
     return {
       associadoId: associado.id,
       podeVender: associado.status === "ativo" && lojasAprovadas > 0,
@@ -67,12 +63,11 @@ export async function rotasApiPublica(app: FastifyInstance) {
   });
 
   app.get<{ Params: { telefone: string } }>("/pescador/telefone/:telefone/pode-vender", async (requisicao) => {
-    await mensalidadesServico.sincronizarAtrasos();
     const telefone = normalizarTelefone(requisicao.params.telefone);
     const associado = await prisma.associado.findUnique({ where: { telefone } });
     if (!associado) throw new ErroNaoEncontrado("Associado");
 
-    const lojasAprovadas = await podeVender(associado.id);
+    const lojasAprovadas = await contarLojasAprovadas(associado.id);
     return {
       associadoId: associado.id,
       podeVender: associado.status === "ativo" && lojasAprovadas > 0,
@@ -82,7 +77,6 @@ export async function rotasApiPublica(app: FastifyInstance) {
   });
 
   app.get<{ Params: { id: string } }>("/pescador/:id/status", async (requisicao) => {
-    await mensalidadesServico.sincronizarAtrasos();
     const associado = await prisma.associado.findUnique({
       where: { id: requisicao.params.id },
       select: { id: true, nome: true, status: true },
@@ -92,7 +86,6 @@ export async function rotasApiPublica(app: FastifyInstance) {
   });
 
   app.get<{ Params: { id: string } }>("/pescador/:id/ativo", async (requisicao) => {
-    await mensalidadesServico.sincronizarAtrasos();
     const associado = await prisma.associado.findUnique({
       where: { id: requisicao.params.id },
       select: { status: true },
@@ -102,7 +95,6 @@ export async function rotasApiPublica(app: FastifyInstance) {
   });
 
   app.get<{ Params: { telefone: string } }>("/pescador/telefone/:telefone/ativo", async (requisicao) => {
-    await mensalidadesServico.sincronizarAtrasos();
     const telefone = normalizarTelefone(requisicao.params.telefone);
     const associado = await prisma.associado.findUnique({
       where: { telefone },
@@ -113,7 +105,6 @@ export async function rotasApiPublica(app: FastifyInstance) {
   });
 
   app.get<{ Params: { id: string } }>("/loja/:id/ativa", async (requisicao) => {
-    await mensalidadesServico.sincronizarAtrasos();
     const loja = await prisma.loja.findUnique({
       where: { id: requisicao.params.id },
       select: { status: true, associado: { select: { status: true } } },

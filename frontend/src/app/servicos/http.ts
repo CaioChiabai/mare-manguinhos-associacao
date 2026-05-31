@@ -1,4 +1,5 @@
 const URL_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
+const CHAVE_TOKEN = "associacao-pescadores.token";
 
 export class ErroHttp extends Error {
   constructor(
@@ -20,8 +21,6 @@ interface OpcoesRequisicao {
 }
 
 export async function requisitar<T>(rota: string, opcoes: OpcoesRequisicao = {}) {
-  // Ajuste aqui: Remove a barra no final da URL base (se houver) e a barra no início da rota (se houver), 
-  // garantindo que haja exatamente uma barra separando as duas.
   const urlFinal = `${URL_BASE.replace(/\/$/, "")}/${rota.replace(/^\//, "")}`;
 
   const resposta = await fetch(urlFinal, {
@@ -40,6 +39,10 @@ export async function requisitar<T>(rota: string, opcoes: OpcoesRequisicao = {})
   const dados = await resposta.json().catch(() => null);
 
   if (!resposta.ok) {
+    if (resposta.status === 401) {
+      localStorage.removeItem(CHAVE_TOKEN);
+      window.location.href = "/login";
+    }
     throw new ErroHttp(
       dados?.mensagem ?? "Falha na comunicação com a API",
       resposta.status,

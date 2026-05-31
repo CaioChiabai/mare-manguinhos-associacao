@@ -1,4 +1,4 @@
-import { Prisma } from "../../../src/generated/prisma/index.js";
+import { Prisma } from "../../generated/prisma/index.js";
 import { prisma } from "../../infraestrutura/prisma/cliente.js";
 import { ErroConflito, ErroNaoEncontrado } from "../../compartilhado/erros.js";
 import { registrarAuditoria } from "../../compartilhado/auditoria.js";
