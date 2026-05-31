@@ -69,7 +69,7 @@ export function Permissoes() {
     try {
       const [respostaPermissoes, respostaAssociados] = await Promise.all([
         servicoPermissoes.listar(token, { busca }),
-        servicoAssociados.listar(token),
+        servicoAssociados.listar(token, { porPagina: 100 }),
       ]);
       setPermissoes(respostaPermissoes.itens);
       setAssociados(respostaAssociados.itens);

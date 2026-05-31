@@ -1,4 +1,4 @@
-import { Prisma } from "../../../src/generated/prisma/index.js";
+import { Prisma } from "../../generated/prisma/index.js";
 import { prisma } from "../../infraestrutura/prisma/cliente.js";
 import { ErroNaoEncontrado } from "../../compartilhado/erros.js";
 import { registrarAuditoria } from "../../compartilhado/auditoria.js";
@@ -175,10 +175,25 @@ export const reunioesServico = {
       });
 
       if (dados.associadosConvocadosIds) {
-        await tx.presencaReuniao.deleteMany({ where: { reuniaoId: id } });
-        if (dados.associadosConvocadosIds.length > 0) {
+        const novosIds = new Set(dados.associadosConvocadosIds);
+
+        const presencasExistentes = await tx.presencaReuniao.findMany({
+          where: { reuniaoId: id },
+          select: { associadoId: true },
+        });
+        const idsExistentes = new Set(presencasExistentes.map((p) => p.associadoId));
+
+        const remover = [...idsExistentes].filter((aid) => !novosIds.has(aid));
+        const adicionar = [...novosIds].filter((aid) => !idsExistentes.has(aid));
+
+        if (remover.length > 0) {
+          await tx.presencaReuniao.deleteMany({
+            where: { reuniaoId: id, associadoId: { in: remover } },
+          });
+        }
+        if (adicionar.length > 0) {
           await tx.presencaReuniao.createMany({
-            data: dados.associadosConvocadosIds.map((associadoId) => ({
+            data: adicionar.map((associadoId) => ({
               reuniaoId: id,
               associadoId,
               presente: false,

@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -90,7 +90,7 @@ model Loja {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PRODUTOS DAS LOJAS
+// PRODUTOS DAS LOJAS (cadastrados via painel admin ou chatbot WhatsApp)
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Produto {
@@ -144,7 +144,7 @@ model ItemVenda {
   id            String @id @default(uuid())
   vendaId       String
   produtoId     String
-  quantidade    Int
+  pesoKg        Float
   precoUnitario Float
   subtotal      Float
 

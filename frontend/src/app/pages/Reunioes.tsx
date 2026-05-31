@@ -64,7 +64,7 @@ export function Reunioes() {
     try {
       const [respostaReunioes, respostaAssociados] = await Promise.all([
         servicoReunioes.listar(token),
-        servicoAssociados.listar(token),
+        servicoAssociados.listar(token, { porPagina: 100 }),
       ]);
       setReunioes(respostaReunioes.itens);
       setAssociados(respostaAssociados.itens);

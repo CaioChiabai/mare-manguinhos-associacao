@@ -1,4 +1,4 @@
-import { Prisma } from "../../../src/generated/prisma/index.js";
+import { Prisma } from "../../generated/prisma/index.js";
 import { prisma } from "../../infraestrutura/prisma/cliente.js";
 import {
   ErroAplicacao,
@@ -25,11 +25,13 @@ export const associadosServico = {
     if (filtros.status) where.status = filtros.status;
 
     if (filtros.busca) {
+      const buscaNormalizada = filtros.busca.replace(/\D/g, "");
       where.OR = [
-        { nome: { contains: filtros.busca } },
+        { nome: { contains: filtros.busca, mode: "insensitive" } },
         { cpf: { contains: filtros.busca } },
-        { email: { contains: filtros.busca } },
+        { email: { contains: filtros.busca, mode: "insensitive" } },
         { numeroCarteira: { contains: filtros.busca } },
+        ...(buscaNormalizada ? [{ telefone: { contains: buscaNormalizada } }] : []),
       ];
     }
 
@@ -67,19 +69,18 @@ export const associadosServico = {
   },
 
   async criar(dados: EntradaCriarAssociado, usuarioId?: string) {
-    const cpfExistente = await prisma.associado.findUnique({ where: { cpf: dados.cpf } });
-    if (cpfExistente) throw new ErroConflito("CPF já cadastrado");
-
-    const emailExistente = await prisma.associado.findUnique({ where: { email: dados.email } });
-    if (emailExistente) throw new ErroConflito("E-mail já cadastrado");
-
     const telefone = normalizarTelefone(dados.telefone);
-    const telefoneExistente = await prisma.associado.findUnique({ where: { telefone } });
-    if (telefoneExistente) throw new ErroConflito("Telefone já cadastrado");
 
-    const carteiraExistente = await prisma.associado.findUnique({
-      where: { numeroCarteira: dados.numeroCarteira },
-    });
+    const [cpfExistente, emailExistente, telefoneExistente, carteiraExistente] = await Promise.all([
+      prisma.associado.findUnique({ where: { cpf: dados.cpf } }),
+      prisma.associado.findUnique({ where: { email: dados.email } }),
+      prisma.associado.findUnique({ where: { telefone } }),
+      prisma.associado.findUnique({ where: { numeroCarteira: dados.numeroCarteira } }),
+    ]);
+
+    if (cpfExistente) throw new ErroConflito("CPF já cadastrado");
+    if (emailExistente) throw new ErroConflito("E-mail já cadastrado");
+    if (telefoneExistente) throw new ErroConflito("Telefone já cadastrado");
     if (carteiraExistente) throw new ErroConflito("Número de carteira já cadastrado");
 
     const associado = await prisma.associado.create({
@@ -101,14 +102,45 @@ export const associadosServico = {
     const existente = await prisma.associado.findUnique({ where: { id } });
     if (!existente) throw new ErroNaoEncontrado("Associado");
 
+    const checks: Promise<unknown>[] = [];
+
     let telefone: string | undefined;
     if (dados.telefone) {
       telefone = normalizarTelefone(dados.telefone);
       if (telefone !== existente.telefone) {
-        const telefoneExistente = await prisma.associado.findUnique({ where: { telefone } });
-        if (telefoneExistente) throw new ErroConflito("Telefone já cadastrado");
+        checks.push(
+          prisma.associado.findUnique({ where: { telefone } }).then((r) => {
+            if (r) throw new ErroConflito("Telefone já cadastrado");
+          }),
+        );
       }
     }
+
+    if (dados.cpf && dados.cpf !== existente.cpf) {
+      checks.push(
+        prisma.associado.findUnique({ where: { cpf: dados.cpf } }).then((r) => {
+          if (r) throw new ErroConflito("CPF já cadastrado");
+        }),
+      );
+    }
+
+    if (dados.email && dados.email !== existente.email) {
+      checks.push(
+        prisma.associado.findUnique({ where: { email: dados.email } }).then((r) => {
+          if (r) throw new ErroConflito("E-mail já cadastrado");
+        }),
+      );
+    }
+
+    if (dados.numeroCarteira && dados.numeroCarteira !== existente.numeroCarteira) {
+      checks.push(
+        prisma.associado.findUnique({ where: { numeroCarteira: dados.numeroCarteira } }).then((r) => {
+          if (r) throw new ErroConflito("Número de carteira já cadastrado");
+        }),
+      );
+    }
+
+    if (checks.length > 0) await Promise.all(checks);
 
     const associado = await prisma.associado.update({
       where: { id },
@@ -178,12 +210,4 @@ export const associadosServico = {
     });
   },
 
-  async podeVender(id: string) {
-    const associado = await prisma.associado.findUnique({ where: { id } });
-    if (!associado) throw new ErroNaoEncontrado("Associado");
-    return {
-      podeVender: associado.status === "ativo",
-      status: associado.status,
-    };
-  },
 };

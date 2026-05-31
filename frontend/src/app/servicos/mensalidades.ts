@@ -3,12 +3,20 @@ import type { Mensalidade, RespostaPaginada, StatusMensalidade } from "../tipos/
 
 interface FiltrosMensalidades {
   status?: StatusMensalidade;
+  associadoId?: string;
+  competencia?: string;
+  porPagina?: number;
+  pagina?: number;
 }
 
 export const servicoMensalidades = {
   listar(token: string, filtros: FiltrosMensalidades = {}) {
     const params = new URLSearchParams();
     if (filtros.status) params.set("status", filtros.status);
+    if (filtros.associadoId) params.set("associadoId", filtros.associadoId);
+    if (filtros.competencia) params.set("competencia", filtros.competencia);
+    if (filtros.porPagina) params.set("porPagina", String(filtros.porPagina));
+    if (filtros.pagina) params.set("pagina", String(filtros.pagina));
     return requisitar<RespostaPaginada<Mensalidade>>(`/api/mensalidades?${params.toString()}`, { token });
   },
 
