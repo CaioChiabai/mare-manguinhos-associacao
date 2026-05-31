@@ -9,12 +9,11 @@
     "build": "tsc",
     "start": "node dist/servidor.js",
     "prisma:gerar": "prisma generate",
-    "prisma:sincronizar": "prisma db push",
     "prisma:migrar": "prisma migrate dev",
     "prisma:semear": "node --import tsx prisma/seed.ts",
-    "prisma:resetar": "prisma db push --force-reset && npm run prisma:semear",
+    "prisma:resetar": "prisma migrate reset --force && npm run prisma:semear",
     "prisma:studio": "prisma studio",
-    "preparar": "prisma generate && prisma db push && npm run prisma:semear"
+    "preparar": "prisma generate && prisma migrate deploy && npm run prisma:semear"
   },
   "dependencies": {
     "@fastify/cors": "9.0.1",

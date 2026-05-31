@@ -4,6 +4,8 @@ import type { Associado, RespostaPaginada, StatusAssociado } from "../tipos/api"
 interface FiltrosAssociados {
   busca?: string;
   status?: StatusAssociado;
+  porPagina?: number;
+  pagina?: number;
 }
 
 export const servicoAssociados = {
@@ -11,6 +13,8 @@ export const servicoAssociados = {
     const params = new URLSearchParams();
     if (filtros.busca) params.set("busca", filtros.busca);
     if (filtros.status) params.set("status", filtros.status);
+    if (filtros.porPagina) params.set("porPagina", String(filtros.porPagina));
+    if (filtros.pagina) params.set("pagina", String(filtros.pagina));
     return requisitar<RespostaPaginada<Associado>>(`/api/associados?${params.toString()}`, { token });
   },
 
