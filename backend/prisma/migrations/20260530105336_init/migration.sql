@@ -59,10 +59,10 @@ CREATE TABLE "lojas" (
 CREATE TABLE "produtos" (
     "id" TEXT NOT NULL,
     "lojaId" TEXT NOT NULL,
-    "nome" TEXT NOT NULL,
+    "especie" TEXT NOT NULL,
     "descricao" TEXT,
-    "preco" DOUBLE PRECISION NOT NULL,
-    "estoque" INTEGER NOT NULL DEFAULT 0,
+    "precoPorKg" DOUBLE PRECISION NOT NULL,
+    "pesoDisponivel" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "ativo" BOOLEAN NOT NULL DEFAULT true,
     "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "atualizadoEm" TIMESTAMP(3) NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE "itens_venda" (
     "id" TEXT NOT NULL,
     "vendaId" TEXT NOT NULL,
     "produtoId" TEXT NOT NULL,
-    "quantidade" INTEGER NOT NULL,
+    "pesoKg" DOUBLE PRECISION NOT NULL,
     "precoUnitario" DOUBLE PRECISION NOT NULL,
     "subtotal" DOUBLE PRECISION NOT NULL,
 

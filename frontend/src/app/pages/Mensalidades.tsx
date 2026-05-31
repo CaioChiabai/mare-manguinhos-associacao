@@ -64,7 +64,7 @@ export function Mensalidades() {
           status: filtroStatus === "todos" ? undefined : filtroStatus,
           porPagina: 200,
         }),
-        servicoAssociados.listar(token, { porPagina: 1000 }),
+        servicoAssociados.listar(token, { porPagina: 100 }),
       ]);
       setMensalidades(respostaMensalidades.itens);
       setAssociados(respostaAssociados.itens);

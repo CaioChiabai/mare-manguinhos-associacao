@@ -80,7 +80,7 @@ export function Lojas() {
           busca: busca || undefined,
           status: filtroStatus === "todos" ? undefined : filtroStatus,
         }),
-        servicoAssociados.listar(token, { porPagina: 1000 }),
+        servicoAssociados.listar(token, { porPagina: 100 }),
       ]);
       setLojas(respostaLojas.itens);
       setAssociados(respostaAssociados.itens);
