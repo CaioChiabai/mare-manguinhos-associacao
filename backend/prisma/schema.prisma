@@ -89,19 +89,19 @@ model Loja {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PRODUTOS DAS LOJAS
+// PRODUTOS DAS LOJAS (cadastrados via painel admin ou chatbot WhatsApp)
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Produto {
-  id           String    @id @default(uuid())
-  lojaId       String
-  nome         String
-  descricao    String?
-  preco        Float
-  estoque      Int       @default(0)
-  ativo        Boolean   @default(true)
-  criadoEm     DateTime  @default(now())
-  atualizadoEm DateTime  @updatedAt
+  id             String   @id @default(uuid())
+  lojaId         String
+  especie        String
+  descricao      String?
+  precoPorKg     Float
+  pesoDisponivel Float    @default(0)
+  ativo          Boolean  @default(true)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
 
   loja       Loja        @relation(fields: [lojaId], references: [id], onDelete: Cascade)
   itensVenda ItemVenda[]
@@ -135,7 +135,7 @@ model ItemVenda {
   id            String @id @default(uuid())
   vendaId       String
   produtoId     String
-  quantidade    Int
+  pesoKg        Float
   precoUnitario Float
   subtotal      Float
 
