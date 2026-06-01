@@ -1,10 +1,3 @@
-/*
-  Warnings:
-
-  - Added the required column `nome` to the `produtos` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `preco` to the `produtos` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- AlterTable
 ALTER TABLE "associados" ADD COLUMN     "foto" TEXT;
 
@@ -13,12 +6,7 @@ ALTER TABLE "produtos" ADD COLUMN     "badges" TEXT DEFAULT '[]',
 ADD COLUMN     "categoria" TEXT,
 ADD COLUMN     "cortesDisponiveis" TEXT DEFAULT '[]',
 ADD COLUMN     "estoque" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "foto" TEXT,
-ADD COLUMN     "nome" TEXT NOT NULL,
-ADD COLUMN     "preco" DOUBLE PRECISION NOT NULL,
-ALTER COLUMN "especie" DROP NOT NULL,
-ALTER COLUMN "precoPorKg" DROP NOT NULL,
-ALTER COLUMN "pesoDisponivel" DROP NOT NULL;
+ADD COLUMN     "foto" TEXT;
 
 -- CreateTable
 CREATE TABLE "consumidores" (

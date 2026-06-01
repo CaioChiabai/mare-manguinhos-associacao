@@ -397,7 +397,6 @@ async function principal() {
 
   interface DadoProduto {
     lojaNome: string;
-    nome: string;
     especie: string;
     preco: number;
     estoque: number;
@@ -411,7 +410,6 @@ async function principal() {
   const dadosProdutos: DadoProduto[] = [
     {
       lojaNome: "Peixes Frescos João",
-      nome: "Robalo Fresco",
       especie: "Robalo",
       preco: 38.0,
       estoque: 20,
@@ -423,7 +421,6 @@ async function principal() {
     },
     {
       lojaNome: "Peixes Frescos João",
-      nome: "Camarão Rosa",
       especie: "Camarão Rosa",
       preco: 65.0,
       estoque: 10,
@@ -435,7 +432,6 @@ async function principal() {
     },
     {
       lojaNome: "Peixes Frescos João",
-      nome: "Corvina",
       especie: "Corvina",
       preco: 32.0,
       estoque: 15,
@@ -447,7 +443,6 @@ async function principal() {
     },
     {
       lojaNome: "Fish Express",
-      nome: "Tilápia",
       especie: "Tilápia",
       preco: 25.0,
       estoque: 30,
@@ -459,7 +454,6 @@ async function principal() {
     },
     {
       lojaNome: "Fish Express",
-      nome: "Sardinha",
       especie: "Sardinha",
       preco: 15.0,
       estoque: 40,
@@ -471,7 +465,6 @@ async function principal() {
     },
     {
       lojaNome: "Empório do Mar",
-      nome: "Lagosta",
       especie: "Lagosta",
       preco: 89.0,
       estoque: 5,
@@ -483,7 +476,6 @@ async function principal() {
     },
     {
       lojaNome: "Empório do Mar",
-      nome: "Polvo",
       especie: "Polvo",
       preco: 55.0,
       estoque: 8,
@@ -495,7 +487,6 @@ async function principal() {
     },
     {
       lojaNome: "Peixe da Dona",
-      nome: "Pargo",
       especie: "Pargo",
       preco: 42.0,
       estoque: 12,
@@ -507,7 +498,6 @@ async function principal() {
     },
     {
       lojaNome: "Peixe da Dona",
-      nome: "Dourado",
       especie: "Dourado",
       preco: 45.0,
       estoque: 10,
@@ -519,7 +509,6 @@ async function principal() {
     },
     {
       lojaNome: "Raimundo Pescados",
-      nome: "Siri Mole",
       especie: "Siri Mole",
       preco: 50.0,
       estoque: 6,
@@ -531,7 +520,6 @@ async function principal() {
     },
     {
       lojaNome: "Raimundo Pescados",
-      nome: "Lula",
       especie: "Lula",
       preco: 35.0,
       estoque: 14,
@@ -543,7 +531,6 @@ async function principal() {
     },
     {
       lojaNome: "Raimundo Pescados",
-      nome: "Anchova",
       especie: "Anchova",
       preco: 28.0,
       estoque: 18,
@@ -561,16 +548,14 @@ async function principal() {
     if (!lojaId) continue;
 
     const existente = await prisma.produto.findFirst({
-      where: { lojaId, nome: dados.nome },
+      where: { lojaId, especie: dados.especie },
     });
     if (existente) continue;
 
     await prisma.produto.create({
       data: {
         lojaId,
-        nome: dados.nome,
         especie: dados.especie,
-        preco: dados.preco,
         precoPorKg: dados.preco,
         estoque: dados.estoque,
         pesoDisponivel: dados.estoque,

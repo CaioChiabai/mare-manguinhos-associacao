@@ -96,13 +96,11 @@ model Loja {
 model Produto {
   id               String    @id @default(uuid())
   lojaId           String
-  nome             String
-  especie          String?
+  especie          String
   descricao        String?
-  preco            Float
-  precoPorKg       Float?
+  precoPorKg       Float
   estoque          Int       @default(0)
-  pesoDisponivel   Float?    @default(0)
+  pesoDisponivel   Float     @default(0)
   cortesDisponiveis String?  @default("[]")
   categoria        String?
   badges           String?   @default("[]")

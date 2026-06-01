@@ -1,7 +1,11 @@
 import { Prisma } from "../../generated/prisma/index.js";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../infraestrutura/prisma/cliente.js";
-import { ErroConflito, ErroNaoAutorizado, ErroNaoEncontrado } from "../../compartilhado/erros.js";
+import {
+  ErroConflito,
+  ErroNaoAutorizado,
+  ErroNaoEncontrado,
+} from "../../compartilhado/erros.js";
 import { registrarAuditoria } from "../../compartilhado/auditoria.js";
 import type {
   EntradaCadastro,
@@ -24,10 +28,14 @@ export const appServico = {
   // ── Auth ──────────────────────────────────────────────────────────────
 
   async cadastrarConsumidor(dados: EntradaCadastro) {
-    const emailExiste = await prisma.consumidor.findUnique({ where: { email: dados.email } });
+    const emailExiste = await prisma.consumidor.findUnique({
+      where: { email: dados.email },
+    });
     if (emailExiste) throw new ErroConflito("E-mail já cadastrado");
 
-    const telefoneExiste = await prisma.consumidor.findUnique({ where: { telefone: dados.telefone } });
+    const telefoneExiste = await prisma.consumidor.findUnique({
+      where: { telefone: dados.telefone },
+    });
     if (telefoneExiste) throw new ErroConflito("Telefone já cadastrado");
 
     const senhaHash = await bcrypt.hash(dados.senha, 10);
@@ -56,7 +64,9 @@ export const appServico = {
   },
 
   async autenticarConsumidor(dados: EntradaLoginApp) {
-    const consumidor = await prisma.consumidor.findUnique({ where: { email: dados.email } });
+    const consumidor = await prisma.consumidor.findUnique({
+      where: { email: dados.email },
+    });
     if (!consumidor) throw new ErroNaoAutorizado("Credenciais inválidas");
 
     const senhaValida = await bcrypt.compare(dados.senha, consumidor.senhaHash);
@@ -72,7 +82,13 @@ export const appServico = {
   async buscarConsumidor(id: string) {
     const consumidor = await prisma.consumidor.findUnique({
       where: { id },
-      select: { id: true, nome: true, email: true, telefone: true, criadoEm: true },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        telefone: true,
+        criadoEm: true,
+      },
     });
     if (!consumidor) throw new ErroNaoEncontrado("Consumidor");
     return consumidor;
@@ -83,14 +99,22 @@ export const appServico = {
     if (!existente) throw new ErroNaoEncontrado("Consumidor");
 
     if (dados.telefone && dados.telefone !== existente.telefone) {
-      const telefoneExiste = await prisma.consumidor.findUnique({ where: { telefone: dados.telefone } });
+      const telefoneExiste = await prisma.consumidor.findUnique({
+        where: { telefone: dados.telefone },
+      });
       if (telefoneExiste) throw new ErroConflito("Telefone já cadastrado");
     }
 
     const atualizado = await prisma.consumidor.update({
       where: { id },
       data: dados,
-      select: { id: true, nome: true, email: true, telefone: true, criadoEm: true },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        telefone: true,
+        criadoEm: true,
+      },
     });
 
     return atualizado;
@@ -139,7 +163,8 @@ export const appServico = {
       titulo: "Fresco hoje!",
       subtitulo: "Direto do pescador",
       descricao: "Capturado esta manhã em Manguinhos",
-      imagem: "https://loremflickr.com/800/400/fishmonger,fish,store?seed=banner",
+      imagem:
+        "https://loremflickr.com/800/400/fishmonger,fish,store?seed=banner",
     };
 
     const pescadores = await prisma.associado.findMany({
@@ -171,10 +196,10 @@ export const appServico = {
 
     const produtosVitrine = produtos.map((p) => ({
       id: p.id,
-      especie: p.especie || p.nome,
+      especie: p.especie,
       foto: p.foto || "",
-      precoPorKg: p.precoPorKg ?? p.preco,
-      pesoDisponivel: p.pesoDisponivel ?? p.estoque,
+      precoPorKg: p.precoPorKg,
+      pesoDisponivel: p.pesoDisponivel,
       categoria: p.categoria || "peixe",
       badges: parseJsonArray(p.badges),
       pescador: {
@@ -198,7 +223,11 @@ export const appServico = {
 
   // ── Produtos ──────────────────────────────────────────────────────────
 
-  async listarProdutosApp(filtros: { busca?: string; categoria?: string; pescador_id?: string }) {
+  async listarProdutosApp(filtros: {
+    busca?: string;
+    categoria?: string;
+    pescador_id?: string;
+  }) {
     const where: Prisma.ProdutoWhereInput = { ativo: true };
 
     if (filtros.categoria && filtros.categoria !== "todos") {
@@ -208,7 +237,6 @@ export const appServico = {
     if (filtros.busca) {
       where.OR = [
         { especie: { contains: filtros.busca } },
-        { nome: { contains: filtros.busca } },
         { descricao: { contains: filtros.busca } },
       ];
     }
@@ -237,11 +265,13 @@ export const appServico = {
 
     return produtos.map((p) => ({
       id: p.id,
-      especie: p.especie || p.nome,
+      especie: p.especie,
       foto: p.foto || "",
-      precoPorKg: p.precoPorKg ?? p.preco,
-      pesoDisponivel: p.pesoDisponivel ?? p.estoque,
-      cortesDisponiveis: parseJsonArray(p.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+      precoPorKg: p.precoPorKg,
+      pesoDisponivel: p.pesoDisponivel,
+      cortesDisponiveis: parseJsonArray(p.cortesDisponiveis) as Array<
+        "inteiro" | "limpo" | "file"
+      >,
       badges: parseJsonArray(p.badges),
       categoria: p.categoria || "peixe",
       descricao: p.descricao || undefined,
@@ -272,11 +302,13 @@ export const appServico = {
 
     return {
       id: p.id,
-      especie: p.especie || p.nome,
+      especie: p.especie,
       foto: p.foto || "",
-      precoPorKg: p.precoPorKg ?? p.preco,
-      pesoDisponivel: p.pesoDisponivel ?? p.estoque,
-      cortesDisponiveis: parseJsonArray(p.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+      precoPorKg: p.precoPorKg,
+      pesoDisponivel: p.pesoDisponivel,
+      cortesDisponiveis: parseJsonArray(p.cortesDisponiveis) as Array<
+        "inteiro" | "limpo" | "file"
+      >,
       badges: parseJsonArray(p.badges),
       categoria: p.categoria || "peixe",
       descricao: p.descricao || undefined,
@@ -292,24 +324,28 @@ export const appServico = {
   // ── Pedidos ───────────────────────────────────────────────────────────
 
   async criarPedido(consumidorId: string, dados: EntradaCriarPedido) {
-    const consumidor = await prisma.consumidor.findUnique({ where: { id: consumidorId } });
+    const consumidor = await prisma.consumidor.findUnique({
+      where: { id: consumidorId },
+    });
     if (!consumidor) throw new ErroNaoEncontrado("Consumidor");
 
     const produtosIds = [...new Set(dados.itens.map((i) => i.produtoId))];
     const produtos = await prisma.produto.findMany({
       where: { id: { in: produtosIds }, ativo: true },
-      select: { id: true, precoPorKg: true, preco: true, pesoDisponivel: true, estoque: true },
+      select: { id: true, precoPorKg: true, pesoDisponivel: true },
     });
 
     if (produtos.length !== produtosIds.length) {
-      throw new ErroNaoEncontrado("Um ou mais produtos não encontrados ou inativos");
+      throw new ErroNaoEncontrado(
+        "Um ou mais produtos não encontrados ou inativos",
+      );
     }
 
     const produtoMap = new Map(produtos.map((p) => [p.id, p]));
 
     for (const item of dados.itens) {
       const prod = produtoMap.get(item.produtoId)!;
-      const pesoDisponivel = prod.pesoDisponivel ?? prod.estoque;
+      const pesoDisponivel = prod.pesoDisponivel;
       if (pesoDisponivel < item.pesoKg) {
         throw new ErroConflito(
           `Peso indisponível para o produto ${item.produtoId}. Disponível: ${pesoDisponivel}kg`,
@@ -329,7 +365,7 @@ export const appServico = {
         itens: {
           create: dados.itens.map((item) => {
             const prod = produtoMap.get(item.produtoId)!;
-            const precoPorKg = prod.precoPorKg ?? prod.preco;
+            const precoPorKg = prod.precoPorKg;
             return {
               produtoId: item.produtoId,
               corte: item.corte,
@@ -346,7 +382,6 @@ export const appServico = {
               select: {
                 id: true,
                 especie: true,
-                nome: true,
                 foto: true,
                 pesoDisponivel: true,
                 cortesDisponiveis: true,
@@ -354,7 +389,14 @@ export const appServico = {
                 categoria: true,
                 loja: {
                   select: {
-                    associado: { select: { id: true, nome: true, foto: true, telefone: true } },
+                    associado: {
+                      select: {
+                        id: true,
+                        nome: true,
+                        foto: true,
+                        telefone: true,
+                      },
+                    },
                   },
                 },
               },
@@ -367,11 +409,13 @@ export const appServico = {
     const itensFormatados = pedido.itens.map((item) => ({
       produto: {
         id: item.produto.id,
-        especie: item.produto.especie || item.produto.nome,
+        especie: item.produto.especie,
         foto: item.produto.foto || "",
         precoPorKg: item.precoPorKg,
         pesoDisponivel: item.produto.pesoDisponivel ?? 0,
-        cortesDisponiveis: parseJsonArray(item.produto.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+        cortesDisponiveis: parseJsonArray(
+          item.produto.cortesDisponiveis,
+        ) as Array<"inteiro" | "limpo" | "file">,
         badges: parseJsonArray(item.produto.badges),
         categoria: (item.produto.categoria || "peixe") as "peixe" | "crustaceo",
         pescador: {
@@ -394,7 +438,11 @@ export const appServico = {
       acao: "criar_pedido",
       entidade: "pedido",
       entidadeId: pedido.id,
-      detalhes: { consumidorId, total: dados.valorTotal, itens: dados.itens.length },
+      detalhes: {
+        consumidorId,
+        total: dados.valorTotal,
+        itens: dados.itens.length,
+      },
     });
 
     return {
@@ -421,17 +469,22 @@ export const appServico = {
               select: {
                 id: true,
                 especie: true,
-                nome: true,
                 foto: true,
                 precoPorKg: true,
-                preco: true,
                 pesoDisponivel: true,
                 cortesDisponiveis: true,
                 badges: true,
                 categoria: true,
                 loja: {
                   select: {
-                    associado: { select: { id: true, nome: true, foto: true, telefone: true } },
+                    associado: {
+                      select: {
+                        id: true,
+                        nome: true,
+                        foto: true,
+                        telefone: true,
+                      },
+                    },
                   },
                 },
               },
@@ -448,13 +501,17 @@ export const appServico = {
       itens: pedido.itens.map((item) => ({
         produto: {
           id: item.produto.id,
-          especie: item.produto.especie || item.produto.nome,
+          especie: item.produto.especie,
           foto: item.produto.foto || "",
           precoPorKg: item.precoPorKg,
-          pesoDisponivel: item.produto.pesoDisponivel ?? 0,
-          cortesDisponiveis: parseJsonArray(item.produto.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+          pesoDisponivel: item.produto.pesoDisponivel,
+          cortesDisponiveis: parseJsonArray(
+            item.produto.cortesDisponiveis,
+          ) as Array<"inteiro" | "limpo" | "file">,
           badges: parseJsonArray(item.produto.badges),
-          categoria: (item.produto.categoria || "peixe") as "peixe" | "crustaceo",
+          categoria: (item.produto.categoria || "peixe") as
+            | "peixe"
+            | "crustaceo",
           pescador: {
             id: item.produto.loja.associado.id,
             nome: item.produto.loja.associado.nome,
@@ -476,7 +533,11 @@ export const appServico = {
     };
   },
 
-  async listarPedidosConsumidor(consumidorId: string, pagina: number, limite: number) {
+  async listarPedidosConsumidor(
+    consumidorId: string,
+    pagina: number,
+    limite: number,
+  ) {
     const where = { consumidorId };
 
     const [pedidos, total] = await Promise.all([
@@ -487,17 +548,23 @@ export const appServico = {
             include: {
               produto: {
                 select: {
-                    id: true,
-                    especie: true,
-                    nome: true,
-                    foto: true,
-                    pesoDisponivel: true,
-                    cortesDisponiveis: true,
-                    badges: true,
-                    categoria: true,
-                    loja: {
+                  id: true,
+                  especie: true,
+                  foto: true,
+                  pesoDisponivel: true,
+                  cortesDisponiveis: true,
+                  badges: true,
+                  categoria: true,
+                  loja: {
                     select: {
-                      associado: { select: { id: true, nome: true, foto: true, telefone: true } },
+                      associado: {
+                        select: {
+                          id: true,
+                          nome: true,
+                          foto: true,
+                          telefone: true,
+                        },
+                      },
                     },
                   },
                 },
@@ -518,13 +585,17 @@ export const appServico = {
         itens: pedido.itens.map((item) => ({
           produto: {
             id: item.produto.id,
-            especie: item.produto.especie || item.produto.nome,
+            especie: item.produto.especie,
             foto: item.produto.foto || "",
             precoPorKg: item.precoPorKg,
-            pesoDisponivel: item.produto.pesoDisponivel ?? 0,
-            cortesDisponiveis: parseJsonArray(item.produto.cortesDisponiveis) as Array<"inteiro" | "limpo" | "file">,
+            pesoDisponivel: item.produto.pesoDisponivel,
+            cortesDisponiveis: parseJsonArray(
+              item.produto.cortesDisponiveis,
+            ) as Array<"inteiro" | "limpo" | "file">,
             badges: parseJsonArray(item.produto.badges),
-            categoria: (item.produto.categoria || "peixe") as "peixe" | "crustaceo",
+            categoria: (item.produto.categoria || "peixe") as
+              | "peixe"
+              | "crustaceo",
             pescador: {
               id: item.produto.loja.associado.id,
               nome: item.produto.loja.associado.nome,
@@ -541,9 +612,9 @@ export const appServico = {
         frete: pedido.frete,
         valorTotal: pedido.valorTotal,
         formaPagamento: pedido.formaPagamento,
-          criadoEm: pedido.criadoEm.toISOString(),
-          atualizadoEm: pedido.atualizadoEm.toISOString(),
-        })),
+        criadoEm: pedido.criadoEm.toISOString(),
+        atualizadoEm: pedido.atualizadoEm.toISOString(),
+      })),
       totalPaginas: Math.ceil(total / limite),
       paginaAtual: pagina,
     };
