@@ -2,7 +2,7 @@ import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
 import { ErroAplicacao } from "./erros.js";
 
-function isPrismaError(erro: unknown): erro is { code: string; meta?: Record<string, unknown> } {
+function isPrismaError(erro: FastifyError): erro is FastifyError & { meta?: Record<string, unknown> } {
   return typeof erro === "object" && erro !== null && "code" in erro && typeof (erro as { code: unknown }).code === "string";
 }
 
