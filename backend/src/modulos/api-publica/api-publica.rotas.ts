@@ -20,6 +20,8 @@ export async function rotasApiPublica(app: FastifyInstance) {
       select: {
         id: true,
         nome: true,
+        foto: true,
+        telefone: true,
         status: true,
       },
       orderBy: { nome: "asc" },

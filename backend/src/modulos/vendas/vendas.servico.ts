@@ -129,15 +129,17 @@ export const vendasServico = {
       if (!produto.ativo) {
         throw new ErroAplicacao(`Produto inativo: ${produto.especie}`);
       }
-      if (produto.pesoDisponivel < item.pesoKg) {
+      const pesoDisp = produto.pesoDisponivel;
+      if (pesoDisp < item.pesoKg) {
         throw new ErroConflito(`Peso disponível insuficiente para ${produto.especie}`);
       }
-      const subtotal = produto.precoPorKg * item.pesoKg;
+      const precoUnit = produto.precoPorKg;
+      const subtotal = precoUnit * item.pesoKg;
       total += subtotal;
       return {
         produtoId: produto.id,
         pesoKg: item.pesoKg,
-        precoUnitario: produto.precoPorKg,
+        precoUnitario: precoUnit,
         subtotal,
       };
     });
