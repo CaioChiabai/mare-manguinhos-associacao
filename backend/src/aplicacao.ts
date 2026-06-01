@@ -17,6 +17,7 @@ import { rotasAuditoria } from "./modulos/auditoria/auditoria.rotas.js";
 import { rotasProdutos } from "./modulos/produtos/produtos.rotas.js";
 import { rotasVendas } from "./modulos/vendas/vendas.rotas.js";
 import { rotasTransportes } from "./modulos/transportes/transportes.rotas.js";
+import { rotasAppFrete } from "./modulos/app-frete/app-frete.rotas.js";
 
 export async function construirAplicacao() {
   const app = Fastify({
@@ -49,6 +50,7 @@ export async function construirAplicacao() {
   await app.register(rotasProdutos, { prefix: "/api/produtos" });
   await app.register(rotasVendas, { prefix: "/api/vendas" });
   await app.register(rotasTransportes, { prefix: "/api/transportes" });
+  await app.register(rotasAppFrete, { prefix: "/api/app/frete" });
 
   return app;
 }
