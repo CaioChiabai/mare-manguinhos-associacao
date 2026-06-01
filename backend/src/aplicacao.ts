@@ -50,7 +50,7 @@ export async function construirAplicacao() {
   await app.register(rotasProdutos, { prefix: "/api/produtos" });
   await app.register(rotasVendas, { prefix: "/api/vendas" });
   await app.register(rotasTransportes, { prefix: "/api/transportes" });
-  await app.register(rotasAppFrete, { prefix: "/api/app/frete" });
+  await app.register(rotasAppFrete, { prefix: "/api/app-frete" });
 
   return app;
 }
