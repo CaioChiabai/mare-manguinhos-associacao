@@ -35,6 +35,7 @@ model Associado {
   cpf             String           @unique
   email           String           @unique
   telefone        String           @unique
+  foto            String?
   embarcacao      String?
   numeroCarteira  String           @unique
   status          String           @default("ativo")
@@ -93,18 +94,24 @@ model Loja {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Produto {
-  id             String   @id @default(uuid())
-  lojaId         String
-  especie        String
-  descricao      String?
-  precoPorKg     Float
-  pesoDisponivel Float    @default(0)
-  ativo          Boolean  @default(true)
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  id               String    @id @default(uuid())
+  lojaId           String
+  especie          String
+  descricao        String?
+  precoPorKg       Float
+  estoque          Int       @default(0)
+  pesoDisponivel   Float     @default(0)
+  cortesDisponiveis String?  @default("[]")
+  categoria        String?
+  badges           String?   @default("[]")
+  foto             String?
+  ativo            Boolean   @default(true)
+  criadoEm         DateTime  @default(now())
+  atualizadoEm     DateTime  @updatedAt
 
   loja       Loja        @relation(fields: [lojaId], references: [id], onDelete: Cascade)
   itensVenda ItemVenda[]
+  pedidoItens PedidoItem[]
 
   @@map("produtos")
 }
@@ -259,4 +266,72 @@ model LogAuditoria {
   usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
 
   @@map("logs_auditoria")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSUMIDORES (APP DELIVERY)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Consumidor {
+  id        String     @id @default(uuid())
+  nome      String
+  email     String     @unique
+  telefone  String     @unique
+  senhaHash String
+  criadoEm  DateTime   @default(now())
+
+  enderecos Endereco[]
+  pedidos   Pedido[]
+
+  @@map("consumidores")
+}
+
+model Endereco {
+  id           String  @id @default(uuid())
+  consumidorId String
+  label        String  @default("Casa")
+  logradouro   String
+  numero       String
+  bairro       String
+  cidade       String
+  estado       String
+  cep          String
+  complemento  String?
+  principal    Boolean @default(false)
+
+  consumidor Consumidor @relation(fields: [consumidorId], references: [id], onDelete: Cascade)
+
+  @@map("enderecos")
+}
+
+model Pedido {
+  id              String     @id @default(uuid())
+  consumidorId    String
+  status          String     @default("confirmado")
+  enderecoEntrega String
+  janelaEntrega   String
+  frete           Float
+  valorTotal      Float
+  formaPagamento  String     @default("pix")
+  criadoEm        DateTime   @default(now())
+  atualizadoEm    DateTime   @updatedAt
+
+  consumidor Consumidor @relation(fields: [consumidorId], references: [id])
+  itens      PedidoItem[]
+
+  @@map("pedidos")
+}
+
+model PedidoItem {
+  id        String  @id @default(uuid())
+  pedidoId  String
+  produtoId String
+  corte     String  @default("inteiro")
+  pesoKg    Float
+  precoPorKg Float
+
+  pedido  Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produto Produto @relation(fields: [produtoId], references: [id], onDelete: Restrict)
+
+  @@map("pedido_itens")
 }

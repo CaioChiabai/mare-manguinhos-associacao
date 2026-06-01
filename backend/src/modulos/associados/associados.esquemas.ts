@@ -7,6 +7,7 @@ export const esquemaCriarAssociado = z.object({
   cpf: z.string().min(11).max(14),
   email: z.string().email(),
   telefone: z.string().min(8),
+  foto: z.string().optional(),
   embarcacao: z.string().optional(),
   numeroCarteira: z.string().min(2),
   status: statusAssociado.default("ativo"),

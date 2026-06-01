@@ -31,7 +31,8 @@ async function principal() {
       nome: "João da Silva",
       cpf: "123.456.789-00",
       email: "joao@email.com",
-      telefone: "11987654321",
+      telefone: "27987654321",
+      foto: "https://i.pravatar.cc/100?u=joao-silva",
       embarcacao: "Maré Alta I",
       numeroCarteira: "AP-001234",
       status: "ativo" as const,
@@ -40,7 +41,8 @@ async function principal() {
       nome: "Maria Santos",
       cpf: "234.567.890-11",
       email: "maria@email.com",
-      telefone: "11987654322",
+      telefone: "27987654322",
+      foto: "https://i.pravatar.cc/100?u=maria-santos",
       embarcacao: "Pescador II",
       numeroCarteira: "AP-001235",
       status: "ativo" as const,
@@ -49,7 +51,8 @@ async function principal() {
       nome: "Pedro Costa",
       cpf: "345.678.901-22",
       email: "pedro@email.com",
-      telefone: "11987654323",
+      telefone: "27987654323",
+      foto: "https://i.pravatar.cc/100?u=pedro-costa",
       embarcacao: "Onda Azul",
       numeroCarteira: "AP-001236",
       status: "inadimplente" as const,
@@ -58,7 +61,8 @@ async function principal() {
       nome: "Ana Oliveira",
       cpf: "456.789.012-33",
       email: "ana@email.com",
-      telefone: "11987654324",
+      telefone: "27987654324",
+      foto: "https://i.pravatar.cc/100?u=ana-oliveira",
       embarcacao: "Correnteza",
       numeroCarteira: "AP-001237",
       status: "suspenso" as const,
@@ -67,9 +71,30 @@ async function principal() {
       nome: "Carlos Ferreira",
       cpf: "567.890.123-44",
       email: "carlos@email.com",
-      telefone: "11987654325",
+      telefone: "27987654325",
+      foto: "https://i.pravatar.cc/100?u=carlos-ferreira",
       embarcacao: "Horizonte",
       numeroCarteira: "AP-001238",
+      status: "ativo" as const,
+    },
+    {
+      nome: "Dona Francisca",
+      cpf: "678.901.234-55",
+      email: "francisca@email.com",
+      telefone: "27987654326",
+      foto: "https://i.pravatar.cc/100?u=francisca",
+      embarcacao: "Estrela do Mar",
+      numeroCarteira: "AP-001239",
+      status: "ativo" as const,
+    },
+    {
+      nome: "Seu Raimundo",
+      cpf: "789.012.345-66",
+      email: "raimundo@email.com",
+      telefone: "27987654327",
+      foto: "https://i.pravatar.cc/100?u=raimundo",
+      embarcacao: "Tubarão Branco",
+      numeroCarteira: "AP-001240",
       status: "ativo" as const,
     },
   ];
@@ -86,32 +111,49 @@ async function principal() {
   }
   console.log(`✅ ${dadosAssociados.length} associados prontos`);
 
+  const lojasCriadas: Record<string, string> = {};
+
   const dadosLojas = [
     {
       donoNome: "João da Silva",
       nomeLoja: "Peixes Frescos João",
       descricao: "Pescados frescos direto do mar",
       status: "aprovada" as const,
-      dataAprovacao: new Date("2023-06-10"),
-    },
-    {
-      donoNome: "Maria Santos",
-      nomeLoja: "Empório do Mar",
-      descricao: "Variedade de peixes e frutos do mar",
-      status: "pendente" as const,
-    },
-    {
-      donoNome: "Carlos Ferreira",
-      nomeLoja: "Pescados Horizonte",
-      descricao: "Qualidade e frescor garantidos",
-      status: "pendente" as const,
+      dataAprovacao: new Date("2024-06-10"),
     },
     {
       donoNome: "João da Silva",
       nomeLoja: "Fish Express",
       descricao: "Entrega rápida de pescados",
       status: "aprovada" as const,
-      dataAprovacao: new Date("2023-08-20"),
+      dataAprovacao: new Date("2024-08-20"),
+    },
+    {
+      donoNome: "Maria Santos",
+      nomeLoja: "Empório do Mar",
+      descricao: "Variedade de peixes e frutos do mar",
+      status: "aprovada" as const,
+      dataAprovacao: new Date("2024-07-15"),
+    },
+    {
+      donoNome: "Dona Francisca",
+      nomeLoja: "Peixe da Dona",
+      descricao: "Peixe fresco toda semana",
+      status: "aprovada" as const,
+      dataAprovacao: new Date("2024-09-01"),
+    },
+    {
+      donoNome: "Seu Raimundo",
+      nomeLoja: "Raimundo Pescados",
+      descricao: "Frutos do mar selecionados",
+      status: "aprovada" as const,
+      dataAprovacao: new Date("2024-09-10"),
+    },
+    {
+      donoNome: "Carlos Ferreira",
+      nomeLoja: "Pescados Horizonte",
+      descricao: "Qualidade e frescor garantidos",
+      status: "pendente" as const,
     },
   ];
 
@@ -121,8 +163,11 @@ async function principal() {
     const existente = await prisma.loja.findFirst({
       where: { nomeLoja: dados.nomeLoja, associadoId: donoId },
     });
-    if (existente) continue;
-    await prisma.loja.create({
+    if (existente) {
+      lojasCriadas[dados.nomeLoja] = existente.id;
+      continue;
+    }
+    const loja = await prisma.loja.create({
       data: {
         associadoId: donoId,
         nomeLoja: dados.nomeLoja,
@@ -131,6 +176,7 @@ async function principal() {
         dataAprovacao: dados.dataAprovacao,
       },
     });
+    lojasCriadas[dados.nomeLoja] = loja.id;
   }
   console.log(`✅ ${dadosLojas.length} lojas prontas`);
 
@@ -346,6 +392,183 @@ async function principal() {
     });
   }
   console.log(`✅ Mensalidades de ${competenciaAtual} prontas`);
+
+  // ── Produtos para o App Delivery ───────────────────────────────────────
+
+  interface DadoProduto {
+    lojaNome: string;
+    especie: string;
+    preco: number;
+    estoque: number;
+    descricao: string;
+    categoria: string;
+    foto: string;
+    cortes: string;
+    badges: string;
+  }
+
+  const dadosProdutos: DadoProduto[] = [
+    {
+      lojaNome: "Peixes Frescos João",
+      especie: "Robalo",
+      preco: 38.0,
+      estoque: 20,
+      descricao: "Robalo fresco capturado hoje. Ideal para grelhados e assados.",
+      categoria: "peixe",
+      foto: "https://loremflickr.com/400/400/fish,seabass?seed=robalo",
+      cortes: '["inteiro","limpo","file"]',
+      badges: '["Hoje","Premium"]',
+    },
+    {
+      lojaNome: "Peixes Frescos João",
+      especie: "Camarão Rosa",
+      preco: 65.0,
+      estoque: 10,
+      descricao: "Camarão rosa selecionado. Perfeito para moquecas e frituras.",
+      categoria: "crustaceo",
+      foto: "https://loremflickr.com/400/400/shrimp?seed=camarao",
+      cortes: '["inteiro","limpo"]',
+      badges: '["Premium"]',
+    },
+    {
+      lojaNome: "Peixes Frescos João",
+      especie: "Corvina",
+      preco: 32.0,
+      estoque: 15,
+      descricao: "Corvina fresca. Excelente para filés grelhados.",
+      categoria: "peixe",
+      foto: "https://loremflickr.com/400/400/fish?seed=corvina",
+      cortes: '["inteiro","file"]',
+      badges: '["Hoje"]',
+    },
+    {
+      lojaNome: "Fish Express",
+      especie: "Tilápia",
+      preco: 25.0,
+      estoque: 30,
+      descricao: "Tilápia de cativeiro, cortes especiais para o dia a dia.",
+      categoria: "peixe",
+      foto: "https://loremflickr.com/400/400/tilapia?seed=tilapia",
+      cortes: '["inteiro","limpo","file"]',
+      badges: '["Econômico"]',
+    },
+    {
+      lojaNome: "Fish Express",
+      especie: "Sardinha",
+      preco: 15.0,
+      estoque: 40,
+      descricao: "Sardinha fresca. Ótima para fritar ou assar.",
+      categoria: "peixe",
+      foto: "https://loremflickr.com/400/400/sardine?seed=sardinha",
+      cortes: '["inteiro"]',
+      badges: '["Hoje","Econômico"]',
+    },
+    {
+      lojaNome: "Empório do Mar",
+      especie: "Lagosta",
+      preco: 89.0,
+      estoque: 5,
+      descricao: "Lagosta fresca. Para ocasiões especiais.",
+      categoria: "crustaceo",
+      foto: "https://loremflickr.com/400/400/lobster?seed=lagosta",
+      cortes: '["inteiro","limpo"]',
+      badges: '["Premium"]',
+    },
+    {
+      lojaNome: "Empório do Mar",
+      especie: "Polvo",
+      preco: 55.0,
+      estoque: 8,
+      descricao: "Polvo fresco e macio. Perfeito para saladas e grelhados.",
+      categoria: "crustaceo",
+      foto: "https://loremflickr.com/400/400/octopus?seed=polvo",
+      cortes: '["inteiro","file"]',
+      badges: '["Premium"]',
+    },
+    {
+      lojaNome: "Peixe da Dona",
+      especie: "Pargo",
+      preco: 42.0,
+      estoque: 12,
+      descricao: "Pargo vermelho fresco. Sabor inconfundível.",
+      categoria: "peixe",
+      foto: "https://loremflickr.com/400/400/snapper?seed=pargo",
+      cortes: '["inteiro","file"]',
+      badges: '["Hoje"]',
+    },
+    {
+      lojaNome: "Peixe da Dona",
+      especie: "Dourado",
+      preco: 45.0,
+      estoque: 10,
+      descricao: "Dourado fresco. Ótimo para grelhados.",
+      categoria: "peixe",
+      foto: "https://loremflickr.com/400/400/dorado?seed=dourado",
+      cortes: '["inteiro","file"]',
+      badges: '["Premium"]',
+    },
+    {
+      lojaNome: "Raimundo Pescados",
+      especie: "Siri Mole",
+      preco: 50.0,
+      estoque: 6,
+      descricao: "Siri mole crocante. Iguaria capixaba.",
+      categoria: "crustaceo",
+      foto: "https://loremflickr.com/400/400/crab?seed=siri",
+      cortes: '["inteiro"]',
+      badges: '["Hoje","Premium"]',
+    },
+    {
+      lojaNome: "Raimundo Pescados",
+      especie: "Lula",
+      preco: 35.0,
+      estoque: 14,
+      descricao: "Lula fresca. Ideal para frituras e moquecas.",
+      categoria: "crustaceo",
+      foto: "https://loremflickr.com/400/400/squid?seed=lula",
+      cortes: '["inteiro","limpo"]',
+      badges: '["Econômico"]',
+    },
+    {
+      lojaNome: "Raimundo Pescados",
+      especie: "Anchova",
+      preco: 28.0,
+      estoque: 18,
+      descricao: "Anchova fresca. Perfeita para assar na brasa.",
+      categoria: "peixe",
+      foto: "https://loremflickr.com/400/400/anchovy?seed=anchova",
+      cortes: '["inteiro","file"]',
+      badges: '["Econômico"]',
+    },
+  ];
+
+  let produtosCriados = 0;
+  for (const dados of dadosProdutos) {
+    const lojaId = lojasCriadas[dados.lojaNome];
+    if (!lojaId) continue;
+
+    const existente = await prisma.produto.findFirst({
+      where: { lojaId, especie: dados.especie },
+    });
+    if (existente) continue;
+
+    await prisma.produto.create({
+      data: {
+        lojaId,
+        especie: dados.especie,
+        precoPorKg: dados.preco,
+        estoque: dados.estoque,
+        pesoDisponivel: dados.estoque,
+        descricao: dados.descricao,
+        categoria: dados.categoria,
+        foto: dados.foto,
+        cortesDisponiveis: dados.cortes,
+        badges: dados.badges,
+      },
+    });
+    produtosCriados++;
+  }
+  console.log(`✅ ${produtosCriados} produtos criados`);
 
   console.log("🎉 Seed concluído.");
 }

@@ -6,6 +6,11 @@ export const esquemaCriarProduto = z.object({
   descricao: z.string().optional(),
   precoPorKg: z.coerce.number().positive(),
   pesoDisponivel: z.coerce.number().nonnegative().default(0),
+  estoque: z.coerce.number().int().nonnegative().default(0),
+  categoria: z.enum(["peixe", "crustaceo"]).optional(),
+  cortesDisponiveis: z.string().optional(),
+  badges: z.string().optional(),
+  foto: z.string().optional(),
   ativo: z.coerce.boolean().default(true),
 });
 
