@@ -46,12 +46,6 @@ export const esquemaCriarEndereco = z.object({
   principal: z.coerce.boolean().default(false),
 });
 
-export const esquemaCalcularFrete = z.object({
-  endereco: z.string().min(1),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-});
-
 export const esquemaPagamentoPix = z.object({
   pedidoId: z.string().uuid(),
   valor: z.number().positive(),
@@ -79,6 +73,5 @@ export type EntradaLoginApp = z.infer<typeof esquemaLogin>;
 export type EntradaCriarPedido = z.infer<typeof esquemaCriarPedido>;
 export type EntradaAtualizarPerfil = z.infer<typeof esquemaAtualizarPerfil>;
 export type EntradaCriarEndereco = z.infer<typeof esquemaCriarEndereco>;
-export type EntradaCalcularFrete = z.infer<typeof esquemaCalcularFrete>;
 export type EntradaPagamentoPix = z.infer<typeof esquemaPagamentoPix>;
 export type EntradaPagamentoCartao = z.infer<typeof esquemaPagamentoCartao>;

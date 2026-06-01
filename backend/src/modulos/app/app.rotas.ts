@@ -7,7 +7,6 @@ import {
   esquemaCriarPedido,
   esquemaAtualizarPerfil,
   esquemaCriarEndereco,
-  esquemaCalcularFrete,
   esquemaPagamentoPix,
   esquemaPagamentoCartao,
   esquemaListarProdutos,
@@ -61,13 +60,6 @@ export async function rotasApp(app: FastifyInstance) {
 
   app.get<{ Params: { id: string } }>("/produtos/:id", async (requisicao) => {
     return appServico.buscarProdutoApp(requisicao.params.id);
-  });
-
-  // ── Frete (pública) ───────────────────────────────────────────────────
-
-  app.post("/frete/calcular", async (requisicao) => {
-    const dados = esquemaCalcularFrete.parse(requisicao.body);
-    return appServico.calcularFrete(dados);
   });
 
   // ── Pedidos (autenticadas) ────────────────────────────────────────────

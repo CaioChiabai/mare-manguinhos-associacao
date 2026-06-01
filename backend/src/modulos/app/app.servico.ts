@@ -620,15 +620,6 @@ export const appServico = {
     };
   },
 
-  // ── Frete ─────────────────────────────────────────────────────────────
-
-  async calcularFrete(_dados: { endereco: string }) {
-    return {
-      valorFrete: 8.0,
-      prazoEstimadoMinutos: 45,
-    };
-  },
-
   // ── Pagamento ─────────────────────────────────────────────────────────
 
   async gerarPix(pedidoId: string, valor: number) {
