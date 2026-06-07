@@ -18,7 +18,7 @@ Este projeto é uma solução fullstack completa desenvolvida para a gestão adm
 ### **Backend**
 *   **Node.js + Fastify:** Framework de alto desempenho e baixa sobrecarga.
 *   **Prisma ORM:** Gerenciamento de banco de dados com produtividade.
-*   **SQLite:** Banco de dados local para facilidade de deploy e testes.
+*   **PostgreSQL:** Banco de dados relacional robusto e pronto para produção.
 *   **JWT (JSON Web Token):** Autenticação segura de usuários.
 
 ---
@@ -77,5 +77,8 @@ A documentação ficará disponível em `http://localhost:8000`. Para gerar o si
 
 1.  Clone o repositório.
 2.  Instale as dependências em ambas as pastas (`npm install`).
-3.  Rode as migrações do Prisma no backend (`npx prisma migrate dev`).
-4.  Inicie os serviços com `npm run dev`.
+3.  No backend, copie `.env.example` para `.env` e configure `DATABASE_URL` (PostgreSQL) e `JWT_SEGREDO`.
+4.  Prepare o banco no backend (`npm run preparar` — gera o client, aplica migrações e popula dados de demonstração).
+5.  Inicie os serviços com `npm run dev`.
+
+> Consulte o [guia completo de instalação](docs/COMO_USAR.md) para a lista de variáveis de ambiente e detalhes.

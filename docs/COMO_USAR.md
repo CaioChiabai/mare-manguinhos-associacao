@@ -5,12 +5,13 @@
 O projeto está dividido em duas aplicações:
 
 - `frontend/`: painel web em React
-- `backend/`: API REST com autenticação, regras de negócio e persistência SQLite
+- `backend/`: API REST com autenticação, regras de negócio e persistência em PostgreSQL
 
 ## Requisitos
 
 - Node.js 20+ recomendado
 - npm 10+ recomendado
+- PostgreSQL (local ou em nuvem, ex.: Render)
 
 ## 1. Subir o backend
 
@@ -18,17 +19,30 @@ No diretório [backend](backend):
 
 ```bash
 npm install
+cp .env.example .env   # configure DATABASE_URL e JWT_SEGREDO
 npm run preparar
 npm run dev
 ```
 
-Isso irá:
+Antes de rodar, edite o `.env` com os dados do seu banco. As variáveis obrigatórias são:
 
-- instalar as dependências
+| Variável             | Obrigatória | Padrão                    | Descrição                                          |
+|----------------------|-------------|---------------------------|----------------------------------------------------|
+| `DATABASE_URL`       | sim         | —                         | String de conexão PostgreSQL                       |
+| `JWT_SEGREDO`        | sim         | —                         | Segredo do JWT (mínimo de 8 caracteres)            |
+| `PORTA`              | não         | `3333`                    | Porta da API                                       |
+| `HOST`               | não         | `0.0.0.0`                 | Host de bind                                       |
+| `ORIGEM_PERMITIDA`   | não         | `http://localhost:5173`   | Origens liberadas no CORS (separadas por vírgula)  |
+| `ADMIN_EMAIL_PADRAO` | não         | `admin@pescadores.local`  | E-mail do admin criado no seed                     |
+| `ADMIN_SENHA_PADRAO` | não         | `admin123`                | Senha do admin criado no seed                      |
+| `ADMIN_NOME_PADRAO`  | não         | `Administrador`           | Nome do admin criado no seed                       |
+
+O comando `npm run preparar` irá:
+
 - gerar o client do Prisma
-- sincronizar o schema com o SQLite
+- aplicar as migrações no banco PostgreSQL
 - popular o banco com usuário admin e dados de demonstração
-- subir a API em `http://localhost:3333`
+- em seguida, `npm run dev` sobe a API em `http://localhost:3333`
 
 ## 2. Subir o frontend
 
@@ -83,6 +97,6 @@ Esses retornos foram mantidos enxutos para não expor CPF, e-mail, telefone ou o
 
 ## 6. Dados importantes para demo
 
-- O banco é local (`SQLite`) e fica no ambiente do backend.
-- O fluxo foi pensado para demonstração e desenvolvimento rápido.
-- Em produção, a troca para PostgreSQL fica concentrada no `schema.prisma` e nas variáveis de ambiente.
+- O banco é PostgreSQL, configurado via `DATABASE_URL`.
+- O mesmo schema vale para desenvolvimento e produção; basta apontar o `DATABASE_URL` para o banco desejado.
+- Em produção (ex.: Render), use a *External Database URL* do banco PostgreSQL provisionado.
