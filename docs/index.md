@@ -17,7 +17,7 @@ Este projeto é uma solução fullstack completa desenvolvida para a gestão adm
 ### **Backend**
 *   **Node.js + Fastify:** Framework de alto desempenho e baixa sobrecarga.
 *   **Prisma ORM:** Gerenciamento de banco de dados com produtividade.
-*   **SQLite:** Banco de dados local para facilidade de deploy e testes.
+*   **PostgreSQL:** Banco de dados relacional robusto e pronto para produção.
 *   **JWT (JSON Web Token):** Autenticação segura de usuários.
 
 ---

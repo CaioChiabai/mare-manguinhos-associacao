@@ -16,7 +16,7 @@
 - TypeScript
 - Fastify
 - Prisma ORM
-- SQLite
+- PostgreSQL
 - JWT para autenticação
 
 ## Estrutura do repositório
@@ -127,6 +127,6 @@ Regras de segurança aplicadas:
 ## Motivos da arquitetura
 
 - `Fastify` foi escolhido por simplicidade, velocidade e boa ergonomia para MVP.
-- `Prisma + SQLite` aceleram a entrega da demo sem exigir infraestrutura externa.
+- `Prisma + PostgreSQL` oferecem persistência robusta e pronta para produção, com migrações versionadas.
 - O frontend foi mantido próximo da estrutura original, mas com camada de serviços e autenticação real.
-- A separação por módulos reduz acoplamento e facilita futura migração para banco e deploy definitivos.
+- A separação por módulos reduz acoplamento e facilita a evolução do sistema.

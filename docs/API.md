@@ -76,24 +76,52 @@ Todos abaixo exigem JWT.
 - `PATCH /api/mensalidades/:id/pagamento`
 - `DELETE /api/mensalidades/:id`
 
-### Dashboard e auditoria
+### Dashboard
 
 - `GET /api/dashboard`
-- `GET /api/auditoria`
 
-O endpoint `GET /api/dashboard` retorna também um resumo financeiro calculado a partir das mensalidades:
+Sincroniza atrasos de mensalidades e retorna três blocos:
 
 ```json
 {
+  "indicadores": {
+    "totalAssociados": 50,
+    "associadosAtivos": 40,
+    "associadosInadimplentes": 5,
+    "associadosSuspensos": 3,
+    "associadosBloqueados": 2,
+    "lojasAprovadas": 10,
+    "lojasPendentes": 3,
+    "reunioesAgendadas": 2,
+    "permissoesAtivas": 15,
+    "mensalidadesPendentes": 20
+  },
   "resumoFinanceiro": {
     "valorEmAberto": 1500,
     "valorAtrasado": 500,
     "valorRecebidoMesAtual": 1000,
     "mensalidadesPendentes": 20,
     "mensalidadesAtrasadas": 10
-  }
+  },
+  "atividadeRecente": []
 }
 ```
+
+`atividadeRecente` retorna os últimos 8 registros de auditoria com dados do usuário que executou a ação.
+
+### Auditoria
+
+- `GET /api/auditoria`
+
+Parâmetros de consulta (query):
+
+| Parâmetro  | Tipo   | Padrão | Descrição                          |
+|------------|--------|--------|------------------------------------|
+| `entidade` | string | —      | Filtra por tipo de entidade        |
+| `pagina`   | number | 1      | Página atual                       |
+| `porPagina`| number | 20     | Itens por página (máx. 100)        |
+
+Retorna resultado paginado: `itens`, `total`, `pagina`, `porPagina`, `totalPaginas`.
 
 ### Produtos
 
@@ -192,10 +220,31 @@ Esses endpoints foram preparados para integração externa:
 - `GET /api/publico/pescador/telefone/:telefone/pode-vender`
 - `GET /api/publico/loja/:id/ativa`
 
-Retorno esperado:
+### Cadastro de produto via chatbot
+
+- `POST /api/publico/pescador/telefone/:telefone/produto`
+
+Endpoint de escrita consumido pelo chatbot WhatsApp. Cadastra um produto na loja do pescador.
+
+Body:
+
+```json
+{
+  "especie": "Robalo",
+  "precoPorKg": 45.00,
+  "pesoDisponivel": 10.5,
+  "lojaId": "uuid-opcional"
+}
+```
+
+- `lojaId` é opcional quando o pescador tem apenas uma loja aprovada; obrigatório se tiver mais de uma.
+- Valida se o pescador está `ativo` e possui ao menos uma loja aprovada antes de cadastrar.
+- Gera log de auditoria com canal `chatbot_whatsapp`.
+
+### Retorno esperado
 
 - os endpoints `.../ativo` e `.../ativa` retornam apenas `true` ou `false`
-- os endpoints de listas públicas retornam somente dados operacionais mínimos, sem CPF, e-mail, telefone ou outros dados sensíveis
+- os endpoints de listas públicas retornam dados operacionais mínimos, sem CPF ou e-mail (o endpoint `/associados/ativos` retorna `telefone` para uso operacional)
 - o endpoint `.../status` devolve apenas `id`, `nome` e `status`
 - as variantes `/pescador/telefone/:telefone/...` aceitam o telefone em qualquer formato (com ou sem máscara) — o servidor remove caracteres não numéricos antes da busca. O telefone é único por associado.
 
