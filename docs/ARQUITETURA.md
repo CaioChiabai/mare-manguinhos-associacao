@@ -59,6 +59,13 @@ Além dos módulos administrativos, o backend agora inclui módulos operacionais
 
 Esses módulos cuidam do catálogo de loja, registro de vendas, controle de estoque e acompanhamento de entregas.
 
+O backend também expõe módulos voltados ao aplicativo de delivery do consumidor final:
+
+- `app`: autenticação própria do consumidor (JWT tipo `consumidor`), vitrine, catálogo, pedidos, perfil, endereços e pagamento (Pix e cartão)
+- `app-frete`: cálculo de frete para as entregas do app
+
+Esses módulos têm fluxo de autenticação separado do painel administrativo.
+
 Arquivos compartilhados:
 
 - [backend/src/aplicacao.ts](backend/src/aplicacao.ts): composição da API

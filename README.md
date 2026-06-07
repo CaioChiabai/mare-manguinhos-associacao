@@ -5,6 +5,7 @@ Este projeto é uma solução fullstack completa desenvolvida para a gestão adm
 ## 🔗 Links de Acesso
 *   **Aplicação (Fullstack):** [associacao-mare-manguinhos.onrender.com](https://associacao-mare-manguinhos.onrender.com)
 *   **API (Backend):** [mare-manguinhos-associacao.onrender.com](https://mare-manguinhos-associacao.onrender.com)
+*   **Documentação (MkDocs):** [mare-de-manguinhos.github.io/mare-manguinhos-associacao](https://mare-de-manguinhos.github.io/mare-manguinhos-associacao/)
 
 ---
 
@@ -36,6 +37,7 @@ Este projeto é uma solução fullstack completa desenvolvida para a gestão adm
 *   **Lojas & Produtos:** Gestão de inventário e pontos de venda.
 *   **Vendas:** Fluxo completo de comercialização.
 *   **Transportes:** Monitoramento logístico.
+*   **App de Delivery:** API dedicada ao consumidor final (vitrine, pedidos, perfil, endereços, pagamento Pix/cartão e cálculo de frete).
 *   **Integração:** Endpoints públicos mínimos para sistemas externos.
 
 ---
@@ -47,11 +49,27 @@ O repositório está dividido em duas frentes principais:
 *   📂 [`/frontend`](frontend): Código fonte da interface do usuário.
 *   📂 [`/backend`](backend): Estrutura da API, modelos do banco e regras de negócio.
 
-### Documentação Auxiliar
-Para detalhes técnicos específicos, consulte:
-1.  📖 [**COMO_USAR.md**](COMO_USAR.md) - Instruções de instalação e execução.
-2.  🏗️ [**ARQUITETURA.md**](ARQUITETURA.md) - Detalhes sobre o design do sistema.
-3.  🔌 [**API.md**](API.md) - Documentação dos endpoints e integrações.
+---
+
+## 📚 Documentação
+
+A documentação técnica é escrita em Markdown na pasta [`/docs`](docs) e publicada com [MkDocs](https://www.mkdocs.org/) (tema *Material*).
+
+Para visualizar localmente:
+
+```bash
+pip install mkdocs-material
+mkdocs serve
+```
+
+A documentação ficará disponível em `http://localhost:8000`. Para gerar o site estático, use `mkdocs build` (saída em `site/`).
+
+### Conteúdo
+1.  📖 [**Como Usar**](docs/COMO_USAR.md) - Instruções de instalação e execução.
+2.  🏗️ [**Arquitetura**](docs/ARQUITETURA.md) - Detalhes sobre o design do sistema e organização dos módulos.
+3.  🔌 [**API**](docs/API.md) - Documentação dos endpoints (painel administrativo, app do consumidor e integrações públicas).
+4.  📐 [**Constituições & Boas Práticas**](docs/CONSTITUTIONS.md) - Regras e padrões de desenvolvimento.
+5.  🗺️ [**Planejamento do Sistema**](Planejamento_Sistema_Associacao.md) - Visão de planejamento do projeto.
 
 ---
 

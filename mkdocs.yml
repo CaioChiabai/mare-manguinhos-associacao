@@ -1,13 +1,32 @@
 site_name: Maré de Manguinhos - Documentação
 site_description: Documentação do Sistema da Associação Maré de Manguinhos
+site_url: https://mare-de-manguinhos.github.io/mare-manguinhos-associacao/
+repo_url: https://github.com/mare-de-manguinhos/mare-manguinhos-associacao
+repo_name: mare-manguinhos-associacao
+
 theme:
   name: material
+  language: pt
   features:
     - navigation.indexes
+    - navigation.top
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: teal
+      accent: cyan
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - tables
+  - toc:
+      permalink: true
 
 nav:
   - Início: index.md
-  - Constituições & Boas Práticas: CONSTITUTIONS.md
+  - Como Usar: COMO_USAR.md
   - Arquitetura: ARQUITETURA.md
   - Documentação da API: API.md
-  - Planejamento: Planejamento_Sistema_Associacao.md
+  - Constituições & Boas Práticas: CONSTITUTIONS.md

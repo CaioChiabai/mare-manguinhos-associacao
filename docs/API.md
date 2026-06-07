@@ -95,6 +95,90 @@ O endpoint `GET /api/dashboard` retorna também um resumo financeiro calculado a
 }
 ```
 
+### Produtos
+
+Catálogo de produtos das lojas. Todas exigem JWT.
+
+- `GET /api/produtos`
+- `GET /api/produtos/:id`
+- `POST /api/produtos`
+- `PUT /api/produtos/:id`
+- `DELETE /api/produtos/:id`
+
+### Vendas
+
+Registro e acompanhamento do ciclo comercial. Todas exigem JWT.
+
+- `GET /api/vendas`
+- `GET /api/vendas/:id`
+- `POST /api/vendas`
+- `PATCH /api/vendas/:id/status`
+- `DELETE /api/vendas/:id`
+
+### Transportes
+
+Controle logístico das entregas. Todas exigem JWT.
+
+- `GET /api/transportes`
+- `GET /api/transportes/:id`
+- `POST /api/transportes`
+- `PUT /api/transportes/:id`
+- `PATCH /api/transportes/:id/status`
+- `DELETE /api/transportes/:id`
+
+## App do consumidor (`/api/app`)
+
+Módulo que atende o aplicativo de delivery para o consumidor final. Possui autenticação própria por JWT (tipo `consumidor`), separada do painel administrativo.
+
+### Autenticação (públicas)
+
+- `POST /api/app/auth/cadastro` — cadastra um consumidor e retorna o perfil com `token`
+- `POST /api/app/auth/login` — autentica e retorna o perfil com `token`
+- `GET /api/app/auth/eu` — retorna o consumidor autenticado (requer `Authorization: Bearer <token>`)
+
+### Vitrine e produtos (públicas)
+
+- `GET /api/app/vitrine` — monta a vitrine inicial do app
+- `GET /api/app/produtos` — lista produtos disponíveis (aceita filtros via query)
+- `GET /api/app/produtos/:id` — detalha um produto
+
+### Pedidos (autenticadas)
+
+- `POST /api/app/pedidos`
+- `GET /api/app/pedidos/meus`
+- `GET /api/app/pedidos/:id`
+
+### Perfil e endereços (autenticadas)
+
+- `GET /api/app/perfil`
+- `PUT /api/app/perfil`
+- `GET /api/app/enderecos`
+- `POST /api/app/enderecos`
+- `DELETE /api/app/enderecos/:id`
+
+### Pagamento (autenticadas)
+
+- `POST /api/app/pagamento/pix` — gera cobrança Pix para um pedido
+- `POST /api/app/pagamento/cartao` — processa pagamento por cartão
+
+## Cálculo de frete (`/api/app-frete`)
+
+Endpoint público usado pelo app para estimar o frete de uma entrega.
+
+### `POST /api/app-frete/calcular`
+
+Body:
+
+```json
+{
+  "endereco": "Rua Exemplo, 123 - Manguinhos",
+  "latitude": -22.88,
+  "longitude": -43.24
+}
+```
+
+`latitude` e `longitude` são opcionais; `endereco` é obrigatório (mínimo de 5 caracteres).
+
 ## Endpoints públicos
 
 Esses endpoints foram preparados para integração externa:
