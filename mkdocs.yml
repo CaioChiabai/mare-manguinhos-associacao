@@ -1,32 +1,47 @@
-site_name: Maré de Manguinhos - Documentação
-site_description: Documentação do Sistema da Associação Maré de Manguinhos
-site_url: https://mare-de-manguinhos.github.io/mare-manguinhos-associacao/
-repo_url: https://github.com/mare-de-manguinhos/mare-manguinhos-associacao
-repo_name: mare-manguinhos-associacao
+site_name: "Maré de Manguinhos"
+site_description: "Documentação do Sistema da Associação Maré de Manguinhos"
+site_url: "https://mare-de-manguinhos.github.io/mare-manguinhos-associacao/"
+repo_url: "https://github.com/mare-de-manguinhos/mare-manguinhos-associacao"
+
+docs_dir: docs
 
 theme:
   name: material
-  language: pt
+  language: pt-BR
   features:
-    - navigation.indexes
+    - navigation.tabs
+    - navigation.sections
     - navigation.top
+    - search.highlight
     - content.code.copy
   palette:
-    - scheme: default
-      primary: teal
-      accent: cyan
+    primary: teal
+    accent: deep orange
+
+nav:
+  - Home: index.md
+  - Guia:
+    - Como Usar: COMO_USAR.md
+    - Constituições & Boas Práticas: CONSTITUTIONS.md
+  - Técnico:
+    - Arquitetura: ARQUITETURA.md
+    - Documentação da API: API.md
+
+plugins:
+  - search
+  - section-index
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mare-de-manguinhos/mare-manguinhos-associacao
+  generator: false
 
 markdown_extensions:
   - admonition
-  - pymdownx.highlight
+  - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.highlight
   - tables
   - toc:
       permalink: true
-
-nav:
-  - Início: index.md
-  - Como Usar: COMO_USAR.md
-  - Arquitetura: ARQUITETURA.md
-  - Documentação da API: API.md
-  - Constituições & Boas Práticas: CONSTITUTIONS.md

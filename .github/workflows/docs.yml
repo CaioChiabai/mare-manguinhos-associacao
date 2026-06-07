@@ -32,7 +32,7 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependências
-        run: pip install mkdocs-material
+        run: pip install mkdocs-material mkdocs-section-index
 
       - name: Build do site
         run: mkdocs build
