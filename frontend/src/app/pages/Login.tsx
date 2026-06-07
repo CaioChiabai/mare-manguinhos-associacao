@@ -48,20 +48,6 @@ export function Login() {
               Controle associados, comércio, permissões, reuniões e financeiro com visão operacional em tempo real.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card className="border-cyan-100">
-              <CardContent className="p-5">
-                <p className="text-sm text-slate-500">Tecnologia</p>
-                <p className="mt-2 font-medium text-slate-900">Fastify + Prisma</p>
-              </CardContent>
-            </Card>
-            <Card className="border-cyan-100">
-              <CardContent className="p-5">
-                <p className="text-sm text-slate-500">Frontend</p>
-                <p className="mt-2 font-medium text-slate-900">React + Vite</p>
-              </CardContent>
-            </Card>
-          </div>
         </div>
 
         <Card className="border-slate-200/80 bg-white/95 shadow-xl backdrop-blur">
