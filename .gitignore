@@ -17,3 +17,6 @@ backend/dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Node.js runtime cache
+node-compile-cache/
