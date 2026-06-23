@@ -26,7 +26,6 @@ export const esquemaCriarPedido = z.object({
   janelaEntrega: z.string().min(1, "Janela de entrega obrigatória"),
   formaPagamento: z.enum(["pix", "cartao"]),
   frete: z.number().nonnegative(),
-  valorTotal: z.number().nonnegative(),
 });
 
 export const esquemaAtualizarPerfil = z.object({
