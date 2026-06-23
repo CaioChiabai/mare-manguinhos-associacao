@@ -25,3 +25,10 @@ export class ErroConflito extends ErroAplicacao {
     this.name = "ErroConflito";
   }
 }
+
+export class ErroProibido extends ErroAplicacao {
+  constructor(mensagem = "Acesso proibido") {
+    super(mensagem, 403);
+    this.name = "ErroProibido";
+  }
+}
