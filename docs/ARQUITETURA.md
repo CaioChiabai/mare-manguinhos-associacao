@@ -124,6 +124,24 @@ Regras de segurança aplicadas:
 - listas públicas não retornam CPF, e-mail, telefone ou outros dados sensíveis
 - o endpoint de status devolve apenas `id`, `nome` e `status`
 
+## Specs de domínio (SDD)
+
+As regras de negócio críticas do sistema estão formalizadas em [`docs/specs/`](specs/README.md).
+
+| Spec | O que cobre |
+|---|---|
+| [SPEC-001](specs/SPEC-001-ciclo-vida-associado.md) | Máquina de estados do associado (ativo / suspenso / inadimplente / bloqueado) |
+| [SPEC-002](specs/SPEC-002-inadimplencia-mensalidades.md) | Inadimplência automática via mensalidades |
+| [SPEC-003](specs/SPEC-003-aprovacao-loja.md) | Fluxo de aprovação de loja |
+| [SPEC-004](specs/SPEC-004-estoque-vendas.md) | Controle transacional de estoque em vendas |
+| [SPEC-005](specs/SPEC-005-api-publica-chatbot.md) | Contrato público da API (chatbot WhatsApp) |
+
+Testes derivados das specs ficam em `backend/src/__tests__/`. Execute com:
+
+```bash
+cd backend && npm test
+```
+
 ## Motivos da arquitetura
 
 - `Fastify` foi escolhido por simplicidade, velocidade e boa ergonomia para MVP.
