@@ -343,58 +343,64 @@ export const appServico = {
 
     const produtoMap = new Map(produtos.map((p) => [p.id, p]));
 
+    // @spec SPEC-006 R005 — validação de estoque antes da transação
     for (const item of dados.itens) {
       const prod = produtoMap.get(item.produtoId)!;
-      const pesoDisponivel = prod.pesoDisponivel;
-      if (pesoDisponivel < item.pesoKg) {
+      if (prod.pesoDisponivel < item.pesoKg) {
         throw new ErroConflito(
-          `Peso indisponível para o produto ${item.produtoId}. Disponível: ${pesoDisponivel}kg`,
+          `Peso indisponível para o produto ${item.produtoId}. Disponível: ${prod.pesoDisponivel}kg`,
         );
       }
     }
 
-    const pedido = await prisma.pedido.create({
-      data: {
-        consumidorId,
-        status: "confirmado",
-        enderecoEntrega: dados.enderecoEntrega,
-        janelaEntrega: dados.janelaEntrega,
-        frete: dados.frete,
-        valorTotal: dados.valorTotal,
-        formaPagamento: dados.formaPagamento,
-        itens: {
-          create: dados.itens.map((item) => {
-            const prod = produtoMap.get(item.produtoId)!;
-            const precoPorKg = prod.precoPorKg;
-            return {
-              produtoId: item.produtoId,
-              corte: item.corte,
-              pesoKg: item.pesoKg,
-              precoPorKg,
-            };
-          }),
+    // @spec SPEC-006 R007 — total calculado pelo backend a partir dos preços do banco
+    let valorTotal = 0;
+    const itensComPreco = dados.itens.map((item) => {
+      const prod = produtoMap.get(item.produtoId)!;
+      const precoPorKg = prod.precoPorKg;
+      valorTotal += precoPorKg * item.pesoKg;
+      return {
+        produtoId: item.produtoId,
+        corte: item.corte,
+        pesoKg: item.pesoKg,
+        precoPorKg,
+      };
+    });
+
+    // @spec SPEC-006 R006 — criar pedido + decrementar estoque atomicamente
+    const pedido = await prisma.$transaction(async (tx) => {
+      const criado = await tx.pedido.create({
+        data: {
+          consumidorId,
+          status: "confirmado",
+          enderecoEntrega: dados.enderecoEntrega,
+          janelaEntrega: dados.janelaEntrega,
+          frete: dados.frete,
+          valorTotal,
+          formaPagamento: dados.formaPagamento,
+          itens: { create: itensComPreco },
         },
-      },
-      include: {
-        itens: {
-          include: {
-            produto: {
-              select: {
-                id: true,
-                especie: true,
-                foto: true,
-                pesoDisponivel: true,
-                cortesDisponiveis: true,
-                badges: true,
-                categoria: true,
-                loja: {
-                  select: {
-                    associado: {
-                      select: {
-                        id: true,
-                        nome: true,
-                        foto: true,
-                        telefone: true,
+        include: {
+          itens: {
+            include: {
+              produto: {
+                select: {
+                  id: true,
+                  especie: true,
+                  foto: true,
+                  pesoDisponivel: true,
+                  cortesDisponiveis: true,
+                  badges: true,
+                  categoria: true,
+                  loja: {
+                    select: {
+                      associado: {
+                        select: {
+                          id: true,
+                          nome: true,
+                          foto: true,
+                          telefone: true,
+                        },
                       },
                     },
                   },
@@ -403,7 +409,21 @@ export const appServico = {
             },
           },
         },
-      },
+      });
+
+      for (const item of itensComPreco) {
+        const resultado = await tx.produto.updateMany({
+          where: { id: item.produtoId, ativo: true, pesoDisponivel: { gte: item.pesoKg } },
+          data: { pesoDisponivel: { decrement: item.pesoKg } },
+        });
+        if (resultado.count !== 1) {
+          throw new ErroConflito(
+            `Peso indisponível para o produto ${item.produtoId}. Tente novamente.`,
+          );
+        }
+      }
+
+      return criado;
     });
 
     const itensFormatados = pedido.itens.map((item) => ({
@@ -429,18 +449,13 @@ export const appServico = {
       pesoKg: item.pesoKg,
     }));
 
-    const valorTotalItens = itensFormatados.reduce(
-      (acc, i) => acc + i.produto.precoPorKg * i.pesoKg,
-      0,
-    );
-
     await registrarAuditoria({
       acao: "criar_pedido",
       entidade: "pedido",
       entidadeId: pedido.id,
       detalhes: {
         consumidorId,
-        total: dados.valorTotal,
+        total: valorTotal,
         itens: dados.itens.length,
       },
     });

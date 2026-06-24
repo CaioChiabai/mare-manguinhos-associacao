@@ -11,11 +11,13 @@ import type {
   EntradaRegistrarPagamento,
 } from "./mensalidades.esquemas.js";
 
+// @spec SPEC-002 R002
 function obterStatusAutomatico(dataVencimento: Date, dataPagamento?: Date | null) {
   if (dataPagamento) return "pago" as const;
   return dataVencimento < new Date() ? "atrasado" as const : "pendente" as const;
 }
 
+// @spec SPEC-001 R004 R005 R006 R007 | SPEC-002 R003 R004 R005 R006
 async function sincronizarStatusAssociado(associadoId: string) {
   const associado = await prisma.associado.findUnique({ where: { id: associadoId } });
   if (!associado) throw new ErroNaoEncontrado("Associado");

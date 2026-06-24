@@ -11,6 +11,7 @@ import type {
   EntradaCriarVenda,
 } from "./vendas.esquemas.js";
 
+// @spec SPEC-004 R006 R007 R009 R010
 async function ajustarEstoqueItens(
   tx: Prisma.TransactionClient,
   itens: Array<{ produtoId: string; pesoKg: number }>,
