@@ -11,9 +11,16 @@ backend/dist/
 
 # Local tooling
 .codex
-# Versionamos as skills do Spec Kit (.claude/skills), mas não as configs locais/credenciais
-.claude/settings.local.json
-.claude/*.local.json
+.claude/
+
+# Spec Kit — versiona-se apenas specs/ e a constituição (.specify/memory).
+# O restante é ferramental local gerado pelo CLI `specify init` (não é entregável).
+.specify/scripts/
+.specify/integrations/
+.specify/workflows/
+.specify/templates/
+.specify/init-options.json
+.specify/integration.json
 
 # Logs
 npm-debug.log*

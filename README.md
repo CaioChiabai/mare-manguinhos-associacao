@@ -89,9 +89,12 @@ As regras de negócio críticas são desenvolvidas com o **[GitHub Spec Kit](htt
 a ferramenta oficial de *Spec-Driven Development* (SDD). O fluxo é
 `Constitution → Specify → Plan → Tasks → Implement`.
 
-- ⚙️ [`.specify/`](.specify) - motor do Spec Kit: constituição do projeto, templates e scripts.
+- 📐 [`.specify/memory/constitution.md`](.specify/memory/constitution.md) - a constituição (princípios do projeto).
 - 📁 [`specs/`](specs/README.md) - as 6 features especificadas (`spec.md` + `plan.md` + `tasks.md`).
 - 🧪 [`backend/src/__tests__/`](backend/src/__tests__) - testes Vitest derivados dos critérios de aceitação.
+
+> O ferramental do Spec Kit (templates, scripts e skills `/speckit-*`) fica fora do repositório
+> — é gerado localmente pelo `specify init`, comando abaixo.
 
 Inicialização usada no projeto:
 

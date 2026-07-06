@@ -6,18 +6,20 @@ ferramenta oficial de *Spec-Driven Development* (SDD). Cada feature vive em uma 
 
 ## Como o Spec Kit está instalado
 
-- `.specify/` — motor do Spec Kit: `memory/constitution.md` (princípios do projeto),
-  `templates/` (spec/plan/tasks/checklist) e `scripts/`.
-- `.claude/skills/speckit-*` — comandos do fluxo (`/speckit-constitution`, `/speckit-specify`,
-  `/speckit-plan`, `/speckit-tasks`, `/speckit-implement`, e os opcionais
-  `/speckit-clarify`, `/speckit-analyze`, `/speckit-checklist`).
-- `specs/NNN-*/` — as features especificadas (abaixo).
-
-Inicializado com:
+O projeto foi inicializado com o Spec Kit oficial:
 
 ```bash
 uvx --from git+https://github.com/github/spec-kit.git specify init --here --integration claude
 ```
+
+Versionamos apenas os **artefatos de SDD** (não o ferramental gerado pelo CLI):
+
+- `.specify/memory/constitution.md` — a constituição (princípios do projeto).
+- `specs/NNN-*/` — as features especificadas (abaixo).
+
+O restante que o `specify init` cria (`.specify/templates`, `.specify/scripts`, e as skills
+`/speckit-*` em `.claude/skills`) é ferramental local para *rodar* o fluxo e fica fora do
+repositório (via `.gitignore`). Para reinstalá-lo, basta rodar o comando acima.
 
 ## Fluxo (SDD)
 
