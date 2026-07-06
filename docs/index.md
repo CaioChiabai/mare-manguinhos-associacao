@@ -49,9 +49,20 @@ O repositório está dividido em duas frentes principais:
 
 ### Documentação Auxiliar
 Para detalhes técnicos específicos, consulte:
-1.  📖 [**COMO_USAR.md**](COMO_USAR.md) - Instruções de instalação e execução.
-2.  🏗️ [**ARQUITETURA.md**](ARQUITETURA.md) - Detalhes sobre o design do sistema.
-3.  🔌 [**API.md**](API.md) - Documentação dos endpoints e integrações.
+1.  📖 [**Como Usar**](COMO_USAR.md) - Instalação, execução e guia de operação por tela/perfil.
+2.  🏗️ [**Arquitetura**](ARQUITETURA.md) - Design do sistema com diagramas (contexto, containers, ER, sequência).
+3.  🗺️ [**Épicos & Histórias**](EPICS.md) - Visão de produto ligada às specs.
+4.  🔌 [**API**](API.md) - Documentação dos endpoints e integrações.
+5.  📐 [**Constituições & Boas Práticas**](CONSTITUTIONS.md) - Padrões de desenvolvimento.
+
+> 🧭 **Spec-Driven Development:** as regras críticas são especificadas com o
+> [GitHub Spec Kit](https://github.com/github/spec-kit) — ver o diretório `specs/` no repositório.
+
+---
+
+## 👥 Equipe
+
+Diego Rangel · Caio Chiabai · Arthur Valentim · Pedro Albani
 
 ---
 

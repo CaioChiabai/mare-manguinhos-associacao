@@ -2,6 +2,15 @@
 
 Este projeto é uma solução fullstack completa desenvolvida para a gestão administrativa de uma associação de pescadores. O painel oferece controle total sobre associados, finanças, vendas e auditoria.
 
+## 👥 Equipe
+
+| Integrante |
+|---|
+| Diego Rangel |
+| Caio Chiabai |
+| Arthur Valentim |
+| Pedro Albani |
+
 ## 🔗 Links de Acesso
 *   **Aplicação (Fullstack):** [associacao-mare-manguinhos.onrender.com](https://associacao-mare-manguinhos.onrender.com)
 *   **API (Backend):** [mare-manguinhos-associacao.onrender.com](https://mare-manguinhos-associacao.onrender.com)
@@ -65,11 +74,33 @@ mkdocs serve
 A documentação ficará disponível em `http://localhost:8000`. Para gerar o site estático, use `mkdocs build` (saída em `site/`).
 
 ### Conteúdo
-1.  📖 [**Como Usar**](docs/COMO_USAR.md) - Instruções de instalação e execução.
-2.  🏗️ [**Arquitetura**](docs/ARQUITETURA.md) - Detalhes sobre o design do sistema e organização dos módulos.
-3.  🔌 [**API**](docs/API.md) - Documentação dos endpoints (painel administrativo, app do consumidor e integrações públicas).
-4.  📐 [**Constituições & Boas Práticas**](docs/CONSTITUTIONS.md) - Regras e padrões de desenvolvimento.
-5.  🗺️ [**Planejamento do Sistema**](Planejamento_Sistema_Associacao.md) - Visão de planejamento do projeto.
+1.  📖 [**Como Usar**](docs/COMO_USAR.md) - Instalação, execução e **guia de operação do sistema** (por tela e perfil).
+2.  🏗️ [**Arquitetura**](docs/ARQUITETURA.md) - Design do sistema com diagramas (contexto, containers, ER e sequência).
+3.  🗺️ [**Épicos & Histórias de Usuário**](docs/EPICS.md) - Visão de produto ligada às specs.
+4.  🔌 [**API**](docs/API.md) - Endpoints (painel administrativo, app do consumidor e integrações públicas).
+5.  📐 [**Constituições & Boas Práticas**](docs/CONSTITUTIONS.md) - Regras e padrões de desenvolvimento.
+6.  🗺️ [**Planejamento do Sistema**](Planejamento_Sistema_Associacao.md) - Visão de planejamento do projeto.
+
+---
+
+## 🧭 Spec-Driven Development (GitHub Spec Kit)
+
+As regras de negócio críticas são desenvolvidas com o **[GitHub Spec Kit](https://github.com/github/spec-kit)**,
+a ferramenta oficial de *Spec-Driven Development* (SDD). O fluxo é
+`Constitution → Specify → Plan → Tasks → Implement`.
+
+- 📐 [`.specify/memory/constitution.md`](.specify/memory/constitution.md) - a constituição (princípios do projeto).
+- 📁 [`specs/`](specs/README.md) - as 6 features especificadas (`spec.md` + `plan.md` + `tasks.md`).
+- 🧪 [`backend/src/__tests__/`](backend/src/__tests__) - testes Vitest derivados dos critérios de aceitação.
+
+> O ferramental do Spec Kit (templates, scripts e skills `/speckit-*`) fica fora do repositório
+> — é gerado localmente pelo `specify init`, comando abaixo.
+
+Inicialização usada no projeto:
+
+```bash
+uvx --from git+https://github.com/github/spec-kit.git specify init --here --integration claude
+```
 
 ---
 

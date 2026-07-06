@@ -23,6 +23,8 @@ nav:
   - Guia:
     - Como Usar: COMO_USAR.md
     - Constituições & Boas Práticas: CONSTITUTIONS.md
+  - Produto:
+    - Épicos & Histórias: EPICS.md
   - Técnico:
     - Arquitetura: ARQUITETURA.md
     - Documentação da API: API.md
@@ -40,7 +42,11 @@ extra:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight
   - tables
   - toc:

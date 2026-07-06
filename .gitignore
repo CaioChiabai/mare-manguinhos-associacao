@@ -13,6 +13,15 @@ backend/dist/
 .codex
 .claude/
 
+# Spec Kit — versiona-se apenas specs/ e a constituição (.specify/memory).
+# O restante é ferramental local gerado pelo CLI `specify init` (não é entregável).
+.specify/scripts/
+.specify/integrations/
+.specify/workflows/
+.specify/templates/
+.specify/init-options.json
+.specify/integration.json
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
