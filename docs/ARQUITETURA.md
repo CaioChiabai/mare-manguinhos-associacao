@@ -1,150 +1,361 @@
 # Arquitetura
 
-## Stack escolhida
+Documento técnico da arquitetura do sistema da Associação de Pescadores Maré de Manguinhos.
+Cobre visão de alto nível, containers, modelo de dados, fluxos críticos (com diagramas de
+sequência) e as decisões arquiteturais que os sustentam.
 
-### Frontend
+> As regras de negócio referenciadas aqui são formalizadas via *Spec-Driven Development* em
+> [`specs/`](../specs/README.md) (GitHub Spec Kit). Os épicos que as originam estão em
+> [`EPICS.md`](EPICS.md).
 
-- React 18
-- Vite
-- React Router
-- shadcn/ui
-- Tailwind CSS
+---
 
-### Backend
+## 1. Visão de contexto (C4 — nível 1)
 
-- Node.js
-- TypeScript
-- Fastify
-- Prisma ORM
-- PostgreSQL
-- JWT para autenticação
+Quem usa o sistema e com o que ele conversa.
 
-## Estrutura do repositório
+```mermaid
+flowchart TB
+    admin([Administrador da Associação])
+    pescador([Pescador / Associado])
+    consumidor([Consumidor final])
+    chatbot[["Chatbot WhatsApp<br/>(sistema externo)"]]
 
-```text
-.
-├── Planejamento_Sistema_Associacao.md
-├── backend/
-│   ├── prisma/
-│   └── src/
-└── frontend/
-    └── src/
+    subgraph SIS[Sistema Maré de Manguinhos]
+        painel[Painel Web Admin]
+        api[API REST]
+        app[App Delivery]
+    end
+
+    admin --> painel
+    consumidor --> app
+    pescador -. cadastra produto .-> chatbot
+    chatbot -->|API pública| api
+    painel --> api
+    app --> api
+    api --> db[(PostgreSQL)]
 ```
 
-## Organização do backend
+- **Administrador** opera o painel web (gestão completa).
+- **Pescador** cadastra produtos via WhatsApp (chatbot → API pública).
+- **Consumidor** compra pelo app de delivery.
+- **Chatbot** e outros sistemas externos consomem a **API pública** (sem autenticação, dados mínimos).
 
-O backend foi separado por módulos de domínio:
+---
 
-- `autenticacao`
-- `associados`
-- `lojas`
-- `permissoes`
-- `reunioes`
-- `mensalidades`
-- `dashboard`
-- `api-publica`
-- `auditoria`
+## 2. Containers (C4 — nível 2)
 
-Cada módulo segue o padrão:
+```mermaid
+flowchart LR
+    subgraph FE[Frontend - React + Vite]
+        pages[Pages] --> services[Camada de serviços HTTP]
+        ctx[AuthContext] --> services
+    end
 
-- `*.esquemas.ts`: validação de entrada com Zod
-- `*.servico.ts`: regras de negócio e persistência
-- `*.rotas.ts`: exposição HTTP via Fastify
+    subgraph BE[Backend - Fastify + TypeScript]
+        rotas[Rotas HTTP] --> mw[Middleware autenticar JWT]
+        mw --> servicos[Serviços de domínio]
+        servicos --> prisma[Prisma Client]
+        rotas --> esquemas[Schemas Zod]
+        servicos --> erros[tratador-erros + auditoria]
+    end
 
-Além dos módulos administrativos, o backend agora inclui módulos operacionais para o ciclo comercial:
+    db[(PostgreSQL)]
 
-- `produtos`
-- `vendas`
-- `transportes`
+    services -->|REST + JWT| rotas
+    prisma --> db
+```
 
-Esses módulos cuidam do catálogo de loja, registro de vendas, controle de estoque e acompanhamento de entregas.
+### Stack
 
-O backend também expõe módulos voltados ao aplicativo de delivery do consumidor final:
+| Camada | Tecnologias |
+|---|---|
+| **Frontend** | React 18, Vite, React Router, TypeScript, Tailwind CSS, shadcn/ui |
+| **Backend** | Node.js, TypeScript, Fastify, Prisma ORM, Zod, JWT |
+| **Banco** | PostgreSQL |
+| **Docs** | MkDocs Material |
+| **Testes** | Vitest |
+| **SDD** | GitHub Spec Kit (`.specify/`, `specs/`) |
 
-- `app`: autenticação própria do consumidor (JWT tipo `consumidor`), vitrine, catálogo, pedidos, perfil, endereços e pagamento (Pix e cartão)
-- `app-frete`: cálculo de frete para as entregas do app
+---
 
-Esses módulos têm fluxo de autenticação separado do painel administrativo.
+## 3. Organização do código
+
+### Backend — módulos de domínio
+
+Cada módulo em `backend/src/modulos/<dominio>/` segue a **tríade** fixa:
+
+- `*.rotas.ts` — protocolo HTTP (Fastify); sem regra de negócio.
+- `*.servico.ts` — regras de negócio e persistência (Prisma).
+- `*.esquemas.ts` — validação/contrato de entrada (Zod).
+
+```mermaid
+flowchart TB
+    subgraph Admin[Domínio administrativo]
+        autenticacao & associados & lojas & permissoes & reunioes & mensalidades & dashboard & auditoria
+    end
+    subgraph Comercial[Domínio comercial]
+        produtos & vendas & transportes
+    end
+    subgraph Consumidor[Domínio do consumidor]
+        app & app-frete
+    end
+    subgraph Externo[Integração]
+        api-publica
+    end
+```
 
 Arquivos compartilhados:
 
-- [backend/src/aplicacao.ts](backend/src/aplicacao.ts): composição da API
-- [backend/src/middlewares/autenticar.ts](backend/src/middlewares/autenticar.ts): proteção por JWT
-- [backend/src/compartilhado/auditoria.ts](backend/src/compartilhado/auditoria.ts): registro de logs
-- [backend/prisma/schema.prisma](backend/prisma/schema.prisma): modelo de dados
+- [backend/src/aplicacao.ts](../backend/src/aplicacao.ts) — composição da API.
+- [backend/src/middlewares/autenticar.ts](../backend/src/middlewares/autenticar.ts) — proteção por JWT.
+- [backend/src/compartilhado/tratador-erros.ts](../backend/src/compartilhado/tratador-erros.ts) — erros centralizados.
+- [backend/src/compartilhado/erros.ts](../backend/src/compartilhado/erros.ts) — classes de erro de domínio.
+- [backend/src/compartilhado/auditoria.ts](../backend/src/compartilhado/auditoria.ts) — registro de logs.
+- [backend/src/compartilhado/telefone.ts](../backend/src/compartilhado/telefone.ts) — normalização de telefone.
+- [backend/prisma/schema.prisma](../backend/prisma/schema.prisma) — modelo de dados.
 
-## Organização do frontend
+### Frontend — camadas
 
-No frontend, a integração foi separada em camadas:
+- `contexts/` — estado global de autenticação (`AuthContext`).
+- `hooks/` — acesso ao contexto (`useAutenticacao`).
+- `servicos/` — chamadas HTTP à API (uma por domínio).
+- `tipos/` — contratos compartilhados com a UI.
+- `pages/` — telas do painel.
+- `components/` — layout e componentes reutilizáveis (shadcn/ui).
 
-- `contexts/`: estado global de autenticação
-- `hooks/`: hooks de acesso ao contexto
-- `servicos/`: chamadas HTTP para a API
-- `tipos/`: contratos compartilhados com a camada visual
-- `pages/`: telas do painel
-- `components/`: layout e componentes reutilizáveis
+---
 
-## Fluxos principais
+## 4. Modelo de dados (ER)
 
-### Autenticação
+```mermaid
+erDiagram
+    Usuario ||--o{ LogAuditoria : registra
+    Associado ||--o{ Loja : possui
+    Associado ||--o{ Mensalidade : deve
+    Associado ||--o{ Permissao : tem
+    Associado ||--o{ HistoricoStatusAssociado : historia
+    Associado ||--o{ PresencaReuniao : comparece
+    Associado ||--o{ Venda : realiza
+    Reuniao ||--o{ PresencaReuniao : lista
+    Loja ||--o{ Produto : oferta
+    Loja ||--o{ Venda : registra
+    Venda ||--o{ ItemVenda : contem
+    Venda ||--o| Transporte : entrega
+    Produto ||--o{ ItemVenda : compoe
+    Produto ||--o{ PedidoItem : compoe
+    Consumidor ||--o{ Endereco : cadastra
+    Consumidor ||--o{ Pedido : faz
+    Pedido ||--o{ PedidoItem : contem
 
-1. Usuário faz login.
-2. API devolve `token` JWT + perfil.
-3. Token é salvo no `localStorage`.
-4. Rotas protegidas só renderizam com sessão válida.
+    Associado {
+        string id PK
+        string cpf UK
+        string telefone UK
+        string numeroCarteira UK
+        string status
+    }
+    Loja {
+        string id PK
+        string associadoId FK
+        string status
+        datetime dataAprovacao
+    }
+    Produto {
+        string id PK
+        string lojaId FK
+        float precoPorKg
+        float pesoDisponivel
+        boolean ativo
+    }
+    Mensalidade {
+        string id PK
+        string associadoId FK
+        string competencia
+        datetime dataVencimento
+        datetime dataPagamento
+        string status
+    }
+    Venda {
+        string id PK
+        string lojaId FK
+        float total
+        string status
+    }
+    Pedido {
+        string id PK
+        string consumidorId FK
+        float valorTotal
+        float frete
+        string status
+    }
+```
 
-### Status do associado
+Três identidades **separadas** (não compartilham tabela nem credencial): `Usuario` (admin),
+`Associado` (pescador), `Consumidor` (app). Ver [SPEC-006 FR-001](../specs/006-pedidos-app-delivery/spec.md).
 
-O status do associado afeta diretamente o restante do sistema:
+---
 
-- `ativo`: pode manter loja aprovada e permissões ativas
-- `inadimplente`: perde elegibilidade comercial
-- `suspenso` / `bloqueado`: exigem atuação administrativa
+## 5. Autenticação e autorização
 
-### Mensalidades
+Dois contextos de JWT distintos, ambos verificados pelo middleware `autenticar`:
 
-O backend recalcula atrasos e sincroniza o status do associado:
+| Token | Emitido em | Campo distintivo | Usado por |
+|---|---|---|---|
+| Admin | `autenticacao` | `papel = ADMIN` | Painel web |
+| Consumidor | `app` | `tipo = consumidor` | App delivery |
 
-- mensalidade vencida e sem pagamento vira `atrasado`
-- associado com débito vira `inadimplente`
-- ao regularizar, volta para `ativo`, se não estiver suspenso ou bloqueado
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant F as Frontend
+    participant A as API (/autenticacao)
+    participant DB as PostgreSQL
 
-### Lojas
+    U->>F: e-mail + senha
+    F->>A: POST /api/autenticacao/login
+    A->>DB: busca usuário + compara hash (bcrypt)
+    DB-->>A: usuário válido
+    A-->>F: { token JWT, perfil }
+    F->>F: salva token no localStorage
+    F->>A: requisições com Authorization: Bearer <token>
+    A->>A: middleware autenticar valida assinatura + expiração
+```
 
-Uma loja só pode ser aprovada se o associado estiver `ativo`.
+A **API pública** (`api-publica`) é a exceção: não exige token e expõe apenas o mínimo
+(booleanos e projeções sem dados sensíveis) — ver [SPEC-005](../specs/005-api-publica-chatbot/spec.md).
 
-### Integração pública
+---
 
-O módulo `api-publica` concentra dados de leitura para consumo por sistemas externos.
+## 6. Fluxos críticos
 
-Regras de segurança aplicadas:
+### 6.1 Ciclo de vida do associado
 
-- respostas públicas devem expor apenas o necessário para o uso operacional
-- os endpoints `.../ativo` e `.../ativa` devolvem somente `true` ou `false`
-- listas públicas não retornam CPF, e-mail, telefone ou outros dados sensíveis
-- o endpoint de status devolve apenas `id`, `nome` e `status`
+```mermaid
+stateDiagram-v2
+    [*] --> ativo
+    ativo --> suspenso: manual (motivo)
+    ativo --> bloqueado: manual (motivo)
+    ativo --> inadimplente: automático (mensalidade vencida)
+    inadimplente --> ativo: automático (quitação)
+    suspenso --> ativo: manual
+    bloqueado --> ativo: manual
+    note right of suspenso
+        Estados protegidos:
+        a sincronização automática
+        NÃO os altera
+    end note
+```
 
-## Specs de domínio (SDD)
+Regras em [SPEC-001](../specs/001-ciclo-vida-associado/spec.md). O status governa a elegibilidade
+comercial (loja aprovada, permissão ativa, venda, cadastro via chatbot).
 
-As regras de negócio críticas do sistema estão formalizadas em [`docs/specs/`](specs/README.md).
+### 6.2 Inadimplência automática
 
-| Spec | O que cobre |
-|---|---|
-| [SPEC-001](specs/SPEC-001-ciclo-vida-associado.md) | Máquina de estados do associado (ativo / suspenso / inadimplente / bloqueado) |
-| [SPEC-002](specs/SPEC-002-inadimplencia-mensalidades.md) | Inadimplência automática via mensalidades |
-| [SPEC-003](specs/SPEC-003-aprovacao-loja.md) | Fluxo de aprovação de loja |
-| [SPEC-004](specs/SPEC-004-estoque-vendas.md) | Controle transacional de estoque em vendas |
-| [SPEC-005](specs/SPEC-005-api-publica-chatbot.md) | Contrato público da API (chatbot WhatsApp) |
+Toda operação de mensalidade dispara a sincronização do status do associado:
 
-Testes derivados das specs ficam em `backend/src/__tests__/`. Execute com:
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant R as mensalidades.rotas
+    participant S as mensalidades.servico
+    participant DB as PostgreSQL
+
+    Admin->>R: PATCH /api/mensalidades/:id/pagamento
+    R->>S: registrarPagamento()
+    S->>DB: atualiza mensalidade (dataPagamento)
+    S->>S: sincronizarStatusAssociado(associadoId)
+    S->>DB: há débito vencido?
+    alt sem débito e não protegido
+        S->>DB: status = ativo + histórico "Regularização financeira"
+    else com débito e não protegido
+        S->>DB: status = inadimplente + histórico "Mensalidades em aberto"
+    end
+    S-->>Admin: mensalidade + status sincronizado
+```
+
+Regras em [SPEC-002](../specs/002-inadimplencia-mensalidades/spec.md).
+
+### 6.3 Venda com estoque transacional
+
+Venda e ajuste de estoque ocorrem na **mesma transação**, com *optimistic locking*:
+
+```mermaid
+sequenceDiagram
+    participant Op as Operador
+    participant S as vendas.servico
+    participant DB as PostgreSQL (transação)
+
+    Op->>S: POST /api/vendas (status=concluida)
+    S->>DB: BEGIN $transaction
+    S->>DB: cria venda + itens (total calculado no backend)
+    loop cada item
+        S->>DB: updateMany produto WHERE ativo=true AND pesoDisponivel>=pesoKg
+        alt count = 0
+            DB-->>S: estoque insuficiente / concorrência
+            S->>DB: ROLLBACK
+            S-->>Op: 409 Conflito
+        end
+    end
+    S->>DB: COMMIT
+    S-->>Op: venda criada + estoque abatido
+```
+
+Regras em [SPEC-004](../specs/004-estoque-vendas/spec.md). O mesmo padrão é reutilizado nos
+pedidos do app ([SPEC-006](../specs/006-pedidos-app-delivery/spec.md)).
+
+### 6.4 Cadastro de produto via chatbot (fluxo público de escrita)
+
+```mermaid
+sequenceDiagram
+    participant P as Pescador (WhatsApp)
+    participant C as Chatbot
+    participant API as api-publica
+    participant DB as PostgreSQL
+
+    P->>C: "quero vender tilápia a R$ 25/kg"
+    C->>API: POST /api/publico/pescador/telefone/:tel/produto
+    API->>API: normalizarTelefone(tel)
+    API->>API: sincronizarAtrasos() (atualiza inadimplência)
+    API->>DB: pescador ativo? tem loja aprovada?
+    alt inapto
+        API-->>C: 403 "Pescador não pode vender"
+    else 1 loja aprovada
+        API->>DB: cria produto na loja + auditoria (canal chatbot_whatsapp)
+        API-->>C: produto cadastrado
+    else >1 loja e sem lojaId
+        API-->>C: 409 "informe lojaId"
+    end
+```
+
+Regras em [SPEC-005](../specs/005-api-publica-chatbot/spec.md).
+
+---
+
+## 7. Decisões arquiteturais (ADRs resumidas)
+
+| Decisão | Motivo | Trade-off aceito |
+|---|---|---|
+| **Fastify** em vez de Express | Baixa sobrecarga, boa ergonomia para MVP | Ecossistema de middlewares menor |
+| **Prisma + PostgreSQL** | Migrações versionadas, tipagem ponta a ponta | Menos controle fino sobre SQL |
+| **Módulos por domínio** (tríade) | Baixo acoplamento, onboarding rápido | Mais arquivos por feature |
+| **Zod na borda** | Validação declarativa e tipada | Duplicação leve com tipos Prisma |
+| **Erros centralizados** | JSON de erro uniforme, sem vazar stacktrace | Requer disciplina de `throw`/`next` |
+| **`$transaction` + optimistic lock** | Consistência de estoque sob concorrência | Retentativas em conflito (409) |
+| **Identidades separadas** (admin/pescador/consumidor) | Isolamento de credenciais e contextos | Sem SSO único entre eles |
+| **API pública mínima** | Segurança de dados (LGPD) e contrato estável | Menos flexível para novos consumidores |
+| **GitHub Spec Kit (SDD)** | Regras críticas explícitas e rastreáveis | Custo de manter specs atualizadas |
+
+---
+
+## 8. Preocupações transversais
+
+- **Auditoria:** ações críticas gravam `LogAuditoria` (`acao`, `entidade`, `entidadeId`, `detalhes`).
+- **Validação:** nenhum dado chega ao serviço sem passar por schema Zod.
+- **Configuração:** variáveis de ambiente centralizadas em `configuracao/ambiente.ts` (ver [Como Usar](COMO_USAR.md)).
+- **CORS:** origens liberadas via `ORIGEM_PERMITIDA`.
+- **Testes:** Vitest, derivados dos critérios de aceitação das specs (`backend/src/__tests__/`).
 
 ```bash
 cd backend && npm test
 ```
-
-## Motivos da arquitetura
-
-- `Fastify` foi escolhido por simplicidade, velocidade e boa ergonomia para MVP.
-- `Prisma + PostgreSQL` oferecem persistência robusta e pronta para produção, com migrações versionadas.
-- O frontend foi mantido próximo da estrutura original, mas com camada de serviços e autenticação real.
-- A separação por módulos reduz acoplamento e facilita a evolução do sistema.
