@@ -11,7 +11,9 @@ backend/dist/
 
 # Local tooling
 .codex
-.claude/
+# Versionamos as skills do Spec Kit (.claude/skills), mas não as configs locais/credenciais
+.claude/settings.local.json
+.claude/*.local.json
 
 # Logs
 npm-debug.log*
